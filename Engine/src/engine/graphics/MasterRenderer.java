@@ -2,6 +2,7 @@ package engine.graphics;
 
 import static org.lwjgl.opengl.GL11.GL_BACK;
 import static org.lwjgl.opengl.GL11.GL_CULL_FACE;
+import static org.lwjgl.opengl.GL11.glClearColor;
 import static org.lwjgl.opengl.GL11.glCullFace;
 import static org.lwjgl.opengl.GL11.glEnable;
 import static org.lwjgl.opengl.GL11.glDisable;
@@ -55,6 +56,27 @@ public class MasterRenderer {
 	public static void enableCulling() {
 		glEnable(GL_CULL_FACE);
 		glCullFace(GL_BACK);
+	}
+	
+	public static void setFogSettings(float density, float gradient) {
+		StaticShader.basicShader.start();
+		StaticShader.basicShader.loadFogSettings(density, gradient);
+		ShaderProgram.stopShaders();
+		
+		TerrainShader.terrainShader.start();
+		TerrainShader.terrainShader.loadFogSettings(density, gradient);
+		ShaderProgram.stopShaders();
+	}
+	
+	public static void setSkyColor(float r, float g, float b) {
+		glClearColor(r,g,b,1);
+		StaticShader.basicShader.start();
+		StaticShader.basicShader.setSkyColor(r, g, b);
+		ShaderProgram.stopShaders();
+		
+		TerrainShader.terrainShader.start();
+		TerrainShader.terrainShader.setSkyColor(r, g, b);
+		ShaderProgram.stopShaders();
 	}
 	
 	public static void disableCulling() {

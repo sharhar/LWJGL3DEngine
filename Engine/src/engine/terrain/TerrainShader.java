@@ -5,6 +5,7 @@ import engine.entities.Light;
 import engine.shaders.ShaderProgram;
 import engine.utils.Maths;
 import engine.utils.maths.Matrix4f;
+import engine.utils.maths.Vector3f;
 
 public class TerrainShader extends ShaderProgram{
 	
@@ -54,6 +55,18 @@ public class TerrainShader extends ShaderProgram{
 		super.getUniformLocation("lightPosition");
 		super.getUniformLocation("shineDamper");
 		super.getUniformLocation("reflectivity");
+		super.getUniformLocation("skyColor");
+		super.getUniformLocation("density");
+		super.getUniformLocation("gradient");
+	}
+	
+	public void loadFogSettings(float density, float gradient) {
+		super.loadFloat(uniforms.get("density"), density);
+		super.loadFloat(uniforms.get("gradient"), gradient);
+	}
+	
+	public void setSkyColor(float r, float g, float b) {
+		super.loadVec3(uniforms.get("skyColor"), new Vector3f(r,g,b));
 	}
 	
 	public void loadProjectionMatrix(Matrix4f data) {

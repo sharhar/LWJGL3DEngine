@@ -11,6 +11,7 @@ import org.lwjgl.opengl.GL11;
 import engine.graphics.MasterRenderer;
 import engine.input.Keyboard;
 import engine.input.Mouse;
+import engine.shaders.ShaderProgram;
 import engine.shaders.StaticShader;
 import engine.terrain.TerrainShader;
 //import engine.sound.SoundManager;
@@ -46,8 +47,6 @@ public class Game {
 	public Game(Window window, Loop loop) {
 		setCurrent(this);
 		init(window, loop);
-		StaticShader.init();
-		TerrainShader.init();
 		MasterRenderer.init();
 		Keyboard.init();
 		Mouse.setWindow(window);
@@ -58,6 +57,8 @@ public class Game {
 	public void init(Window window, Loop loop) {
 		this.loop = loop;
 		this.window = window;
+		StaticShader.init();
+		TerrainShader.init();
 	}
 	
 	public void printFPS(boolean pf) {
@@ -96,11 +97,6 @@ public class Game {
 		}
 		
 		destroy();
-	}
-	
-	public void setSkyColor(float r, float g, float b) {
-		glClearColor(r,g,b,1);
-		StaticShader.basicShader.setSkyColor(r, g, b);
 	}
 	
 	public void close() {

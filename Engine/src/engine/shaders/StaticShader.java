@@ -56,6 +56,13 @@ public class StaticShader extends ShaderProgram{
 		super.getUniformLocation("reflectivity");
 		super.getUniformLocation("useFakeLighting");
 		super.getUniformLocation("skyColor");
+		super.getUniformLocation("density");
+		super.getUniformLocation("gradient");
+	}
+	
+	public void loadFogSettings(float density, float gradient) {
+		super.loadFloat(uniforms.get("density"), density);
+		super.loadFloat(uniforms.get("gradient"), gradient);
 	}
 	
 	public void setSkyColor(float r, float g, float b) {

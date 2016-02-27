@@ -1,8 +1,7 @@
 package engine;
 
 import static org.lwjgl.glfw.GLFW.*;
-import static org.lwjgl.opengl.GL11.GL_COLOR_BUFFER_BIT;
-import static org.lwjgl.opengl.GL11.glClear;
+import static org.lwjgl.opengl.GL11.*;
 
 import java.util.Timer;
 import java.util.TimerTask;
@@ -47,8 +46,9 @@ public class Game {
 	public Game(Window window, Loop loop) {
 		setCurrent(this);
 		init(window, loop);
+		StaticShader.init();
+		TerrainShader.init();
 		MasterRenderer.init();
-		//SoundManager.init();
 		Keyboard.init();
 		Mouse.setWindow(window);
 		fpsCounter = new Timer();
@@ -58,8 +58,6 @@ public class Game {
 	public void init(Window window, Loop loop) {
 		this.loop = loop;
 		this.window = window;
-		StaticShader.init();
-		TerrainShader.init();
 	}
 	
 	public void printFPS(boolean pf) {
@@ -98,6 +96,11 @@ public class Game {
 		}
 		
 		destroy();
+	}
+	
+	public void setSkyColor(float r, float g, float b) {
+		glClearColor(r,g,b,1);
+		StaticShader.basicShader.setSkyColor(r, g, b);
 	}
 	
 	public void close() {

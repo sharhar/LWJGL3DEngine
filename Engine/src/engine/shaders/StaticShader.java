@@ -2,7 +2,7 @@ package engine.shaders;
 
 import engine.utils.Maths;
 import engine.utils.maths.Matrix4f;
-
+import engine.utils.maths.Vector3f;
 import engine.entities.Camera;
 import engine.entities.Light;
 
@@ -55,6 +55,11 @@ public class StaticShader extends ShaderProgram{
 		super.getUniformLocation("shineDamper");
 		super.getUniformLocation("reflectivity");
 		super.getUniformLocation("useFakeLighting");
+		super.getUniformLocation("skyColor");
+	}
+	
+	public void setSkyColor(float r, float g, float b) {
+		super.loadVec3(uniforms.get("skyColor"), new Vector3f(r,g,b));
 	}
 	
 	public void loadFakeLighting(boolean useFakeLighting) {

@@ -17,4 +17,8 @@ public class Vector3f {
 		this.y = 0;
 		this.z = 0;
 	}
+	
+	public float length() {
+		return (float) Math.sqrt(x*x + y*y + z*z);
+	}
 }

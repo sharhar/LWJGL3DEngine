@@ -1,14 +1,13 @@
 package test;
 
 import engine.utils.Loader;
-import engine.utils.OBJLoader;
+import engine.utils.ModelData;
+import engine.utils.OBJFileLoader;
 import engine.utils.maths.Vector3f;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
-
-import org.lwjgl.opengl.GL11;
 
 import engine.Game;
 import engine.Loop;
@@ -44,8 +43,7 @@ public class Main implements Loop{
 	public Main() {
 		Window window = new Window("Game", 1280, 720, true, false);
 		game = new Game(window, this);
-		
-		GL11.glClearColor(0.2f, 0.3f, 0.7f, 1);
+		game.setSkyColor(1, 1, 1);
 		
 		light = new Light(new Vector3f(3000,2000,0), 100, 2300, new Vector3f(1,1,1), null);
 		camera = new Camera();
@@ -53,9 +51,13 @@ public class Main implements Loop{
 		terrains.add(new Terrain(0, -1, new ModelTexture(Loader.loadTexture("/grass.png"))));
 		terrains.add(new Terrain(-1, -1, new ModelTexture(Loader.loadTexture("/grass.png"))));
 		
-		TexturedModel treeModel = new TexturedModel(OBJLoader.loadObjModel("res/tree.obj"), new ModelTexture(Loader.loadTexture("/tree.png")));
-		TexturedModel fernModel = new TexturedModel(OBJLoader.loadObjModel("res/fern.obj"), new ModelTexture(Loader.loadTexture("/fern.png")));
-		TexturedModel grassModel = new TexturedModel(OBJLoader.loadObjModel("res/grassModel.obj"), new ModelTexture(Loader.loadTexture("/grassTexture.png")));
+		ModelData treeOBJ = OBJFileLoader.loadOBJ("res/tree.obj");
+		ModelData fernOBJ = OBJFileLoader.loadOBJ("res/fern.obj");
+		ModelData grassOBJ = OBJFileLoader.loadOBJ("res/grassModel.obj");
+		
+		TexturedModel treeModel = new TexturedModel(Loader.loadToVAO(treeOBJ.getVertices(), treeOBJ.getTextureCoords(), treeOBJ.getNormals(), treeOBJ.getIndices()), new ModelTexture(Loader.loadTexture("/tree.png")));
+		TexturedModel fernModel = new TexturedModel(Loader.loadToVAO(fernOBJ.getVertices(), fernOBJ.getTextureCoords(), fernOBJ.getNormals(), fernOBJ.getIndices()), new ModelTexture(Loader.loadTexture("/fern.png")));
+		TexturedModel grassModel = new TexturedModel(Loader.loadToVAO(grassOBJ.getVertices(), grassOBJ.getTextureCoords(), grassOBJ.getNormals(), grassOBJ.getIndices()), new ModelTexture(Loader.loadTexture("/grassTexture.png")));
 		fernModel.getTexture().setHasTransparency(true);
 		grassModel.getTexture().setHasTransparency(true);
 		grassModel.getTexture().setUseFalseLighting(true);

@@ -54,6 +54,11 @@ public class StaticShader extends ShaderProgram{
 		super.getUniformLocation("lightPosition");
 		super.getUniformLocation("shineDamper");
 		super.getUniformLocation("reflectivity");
+		super.getUniformLocation("useFakeLighting");
+	}
+	
+	public void loadFakeLighting(boolean useFakeLighting) {
+		super.loadBool(uniforms.get("useFakeLighting"), useFakeLighting);
 	}
 	
 	public void loadProjectionMatrix(Matrix4f data) {

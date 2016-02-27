@@ -33,7 +33,11 @@ public class EntityRenderer {
 			GL20.glEnableVertexAttribArray(1);
 			GL20.glEnableVertexAttribArray(2);
 			ModelTexture texture = model.getTexture();
+			if(texture.isHasTransparency()) {
+				MasterRenderer.disableCulling();
+			}
 			StaticShader.basicShader.loadShineVariables(texture.getShineDamper(), texture.getReflectivity());
+			StaticShader.basicShader.loadFakeLighting(texture.isUseFalseLighting());
 			GL13.glActiveTexture(GL13.GL_TEXTURE0);
 			GL11.glBindTexture(GL11.GL_TEXTURE_2D, model.getTexture().getID());
 			List<Entity> batch = entities.get(model);
@@ -42,6 +46,9 @@ public class EntityRenderer {
 						entity.getRotX(), entity.getRotY(), entity.getRotZ(), entity.getScale());
 				StaticShader.basicShader.loadTransformationMatrix(transformationMatrix);
 				GL11.glDrawElements(GL11.GL_TRIANGLES, rawModel.getVertexCount(), GL11.GL_UNSIGNED_INT, 0);
+			}
+			if(texture.isHasTransparency()) {
+				MasterRenderer.enableCulling();
 			}
 			GL20.glDisableVertexAttribArray(0);
 			GL20.glDisableVertexAttribArray(1);

@@ -1,5 +1,11 @@
 package engine.graphics;
 
+import static org.lwjgl.opengl.GL11.GL_BACK;
+import static org.lwjgl.opengl.GL11.GL_CULL_FACE;
+import static org.lwjgl.opengl.GL11.glCullFace;
+import static org.lwjgl.opengl.GL11.glEnable;
+import static org.lwjgl.opengl.GL11.glDisable;
+
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -46,8 +52,21 @@ public class MasterRenderer {
 		terrains.clear();
 	}
 	
+	public static void enableCulling() {
+		glEnable(GL_CULL_FACE);
+		glCullFace(GL_BACK);
+	}
+	
+	public static void disableCulling() {
+		glDisable(GL_CULL_FACE);
+	}
+	
 	public static void addTerrain(Terrain terrain) {
 		terrains.add(terrain);
+	}
+	
+	public static void addTerrains(List<Terrain> terrain) {
+		terrains.addAll(terrain);
 	}
 	
 	public static void addEntity(Entity entity) {
@@ -59,6 +78,12 @@ public class MasterRenderer {
 			List<Entity> newBatch = new ArrayList<Entity>();
 			newBatch.add(entity);
 			entities.put(model, newBatch);
+		}
+	}
+	
+	public static void addEntitys(List<Entity> entitys) {
+		for(Entity ent:entitys) {
+			addEntity(ent);
 		}
 	}
 	

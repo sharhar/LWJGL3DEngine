@@ -1,7 +1,6 @@
 package engine.terrain;
 
 import engine.graphics.models.RawModel;
-import engine.graphics.textures.ModelTexture;
 import engine.utils.Loader;
 
 public class Terrain {
@@ -11,9 +10,9 @@ public class Terrain {
 	private float x;
 	private float z;
 	private RawModel model;
-	private ModelTexture texture;
+	private TerrainTexturePack texture;
 	
-	public Terrain(int gridX, int gridZ, ModelTexture texture) {
+	public Terrain(int gridX, int gridZ, TerrainTexturePack texture) {
 		this.texture = texture;
 		this.x = gridX * SIZE;
 		this.z = gridZ * SIZE;
@@ -32,7 +31,7 @@ public class Terrain {
 		return model;
 	}
 
-	public ModelTexture getTexture() {
+	public TerrainTexturePack getTexture() {
 		return texture;
 	}
 

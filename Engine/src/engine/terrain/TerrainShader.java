@@ -58,6 +58,20 @@ public class TerrainShader extends ShaderProgram{
 		super.getUniformLocation("skyColor");
 		super.getUniformLocation("density");
 		super.getUniformLocation("gradient");
+		
+		super.getUniformLocation("bgTex");
+		super.getUniformLocation("rTex");
+		super.getUniformLocation("gTex");
+		super.getUniformLocation("bTex");
+		super.getUniformLocation("blendMap");
+	}
+	
+	public void connectTextureUnits() {
+		super.loadInt(uniforms.get("bgTex"), 0);
+		super.loadInt(uniforms.get("rTex"), 1);
+		super.loadInt(uniforms.get("gTex"), 2);
+		super.loadInt(uniforms.get("bTex"), 3);
+		super.loadInt(uniforms.get("blendMap"), 4);
 	}
 	
 	public void loadFogSettings(float density, float gradient) {

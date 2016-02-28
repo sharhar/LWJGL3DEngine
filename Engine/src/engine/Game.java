@@ -11,10 +11,8 @@ import org.lwjgl.opengl.GL11;
 import engine.graphics.MasterRenderer;
 import engine.input.Keyboard;
 import engine.input.Mouse;
-import engine.shaders.ShaderProgram;
 import engine.shaders.StaticShader;
 import engine.terrain.TerrainShader;
-//import engine.sound.SoundManager;
 import engine.utils.Loader;
 
 public class Game {

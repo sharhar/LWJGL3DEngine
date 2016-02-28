@@ -16,9 +16,12 @@ import engine.entities.Camera;
 import engine.entities.Entity;
 import engine.entities.Light;
 import engine.graphics.MasterRenderer;
+import engine.graphics.models.RawModel;
 import engine.graphics.models.TexturedModel;
 import engine.graphics.textures.ModelTexture;
 import engine.terrain.Terrain;
+import engine.terrain.TerrainTexture;
+import engine.terrain.TerrainTexturePack;
 
 public class Main implements Loop{
 
@@ -49,33 +52,47 @@ public class Main implements Loop{
 		light = new Light(new Vector3f(3000,2000,0), 100, 2300, new Vector3f(1,1,1), null);
 		camera = new Camera();
 		
-		terrains.add(new Terrain(0, -1, new ModelTexture(Loader.loadTexture("/grass.png"))));
-		terrains.add(new Terrain(-1, -1, new ModelTexture(Loader.loadTexture("/grass.png"))));
+		ModelData data = OBJFileLoader.loadOBJ("res/house.obj");
+		RawModel rawModel = Loader.loadToVAO(data.getVertices(), data.getTextureCoords(), data.getNormals(), data.getIndices());
+		ModelTexture texture = new ModelTexture(Loader.loadTexture("/house.png"));
+		TexturedModel model = new TexturedModel(rawModel, texture);
+		stuff.add(new Entity(model, new Vector3f(0, 3f, -15), 0, 90, 0, 3));
+		
+		TerrainTexturePack pack = new TerrainTexturePack(
+				new TerrainTexture(Loader.loadTexture("/grass.png")), 
+				new TerrainTexture(Loader.loadTexture("/mud.png")), 
+				new TerrainTexture(Loader.loadTexture("/grassFlowers.png")), 
+				new TerrainTexture(Loader.loadTexture("/path.png")), 
+				new TerrainTexture(Loader.loadTexture("/BlendMap.png")));
+		
+		terrains.add(new Terrain(0, -1, pack));
+		terrains.add(new Terrain(-1, -1, pack));
 		
 		ModelData treeOBJ = OBJFileLoader.loadOBJ("res/tree.obj");
-		ModelData fernOBJ = OBJFileLoader.loadOBJ("res/fern.obj");
-		ModelData grassOBJ = OBJFileLoader.loadOBJ("res/grassModel.obj");
+		//ModelData fernOBJ = OBJFileLoader.loadOBJ("res/fern.obj");
+		//ModelData grassOBJ = OBJFileLoader.loadOBJ("res/grassModel.obj");
 		
 		TexturedModel treeModel = new TexturedModel(Loader.loadToVAO(treeOBJ.getVertices(), treeOBJ.getTextureCoords(), treeOBJ.getNormals(), treeOBJ.getIndices()), new ModelTexture(Loader.loadTexture("/tree.png")));
-		TexturedModel fernModel = new TexturedModel(Loader.loadToVAO(fernOBJ.getVertices(), fernOBJ.getTextureCoords(), fernOBJ.getNormals(), fernOBJ.getIndices()), new ModelTexture(Loader.loadTexture("/fern.png")));
-		TexturedModel grassModel = new TexturedModel(Loader.loadToVAO(grassOBJ.getVertices(), grassOBJ.getTextureCoords(), grassOBJ.getNormals(), grassOBJ.getIndices()), new ModelTexture(Loader.loadTexture("/grassTexture.png")));
-		fernModel.getTexture().setHasTransparency(true);
-		grassModel.getTexture().setHasTransparency(true);
-		grassModel.getTexture().setUseFalseLighting(true);
+		//TexturedModel fernModel = new TexturedModel(Loader.loadToVAO(fernOBJ.getVertices(), fernOBJ.getTextureCoords(), fernOBJ.getNormals(), fernOBJ.getIndices()), new ModelTexture(Loader.loadTexture("/fern.png")));
+		//TexturedModel grassModel = new TexturedModel(Loader.loadToVAO(grassOBJ.getVertices(), grassOBJ.getTextureCoords(), grassOBJ.getNormals(), grassOBJ.getIndices()), new ModelTexture(Loader.loadTexture("/grassTexture.png")));
+		//fernModel.getTexture().setHasTransparency(true);
+		//grassModel.getTexture().setHasTransparency(true);
+		//grassModel.getTexture().setUseFalseLighting(true);
 		
 		Random random = new Random();
 		
 		for(int i = 0; i < 100;i++) {
-			stuff.add(new Entity(treeModel, new Vector3f(random.nextInt(400)-200,0,-random.nextInt(200)), 0, random.nextFloat()*360, 0, 3f));
+			Vector3f pos = new Vector3f(random.nextInt(400)-200,0,-random.nextInt(200));
+			stuff.add(new Entity(treeModel, pos, 0, random.nextFloat()*360, 0, 3f));
 		}
 		
-		for(int i = 0; i < 100;i++) {
-			stuff.add(new Entity(fernModel, new Vector3f(random.nextInt(400)-200,0,-random.nextInt(200)), 0, random.nextFloat()*360, 0, 0.5f));
-		}
+		//for(int i = 0; i < 100;i++) {
+		//	stuff.add(new Entity(fernModel, new Vector3f(random.nextInt(400)-200,0,-random.nextInt(200)), 0, random.nextFloat()*360, 0, 0.3f));
+		//}
 		
-		for(int i = 0; i < 100;i++) {
-			stuff.add(new Entity(grassModel, new Vector3f(random.nextInt(400)-200,0,-random.nextInt(200)), 0, random.nextFloat()*360, 0, 1f));
-		}
+		//for(int i = 0; i < 100;i++) {
+		//	stuff.add(new Entity(grassModel, new Vector3f(random.nextInt(400)-200,0,-random.nextInt(200)), 0, random.nextFloat()*360, 0, 0.7f));
+		//}
 		
 		game.start();
 	}

@@ -14,6 +14,7 @@ import engine.input.Mouse;
 import engine.shaders.StaticShader;
 import engine.terrain.TerrainShader;
 import engine.utils.Loader;
+import engine.utils.Time;
 
 public class Game {
 	
@@ -80,6 +81,7 @@ public class Game {
 		while(running) {
 			glClear(GL_COLOR_BUFFER_BIT);
 			Mouse.tick();
+			Time.tick();
 			loop.run();
 			glfwSwapBuffers(window.getWindow());
 			glfwPollEvents();
@@ -103,7 +105,6 @@ public class Game {
 	
 	public void destroy() {
 		loop.stop();
-		//SoundManager.destroy();
 		fpsCounter.cancel();
 		StaticShader.basicShader.cleanUp();
 		TerrainShader.terrainShader.cleanUp();

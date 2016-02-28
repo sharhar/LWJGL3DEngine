@@ -1,6 +1,7 @@
 package engine.entities;
 
 import engine.graphics.models.TexturedModel;
+import engine.utils.Time;
 import engine.utils.maths.Vector3f;
 
 public class Entity {
@@ -9,6 +10,7 @@ public class Entity {
 	private Vector3f position;
 	private float rotX, rotY, rotZ;
 	private float scale;
+	private Vector3f rotOff = new Vector3f();
 
 	public Entity(TexturedModel model, Vector3f position, float rotX, float rotY, float rotZ,
 			float scale) {
@@ -18,6 +20,28 @@ public class Entity {
 		this.rotY = rotY;
 		this.rotZ = rotZ;
 		this.scale = scale;
+	}
+	
+	public Vector3f getRotOff() {
+		return rotOff;
+	}
+	
+	public void setRotOff(Vector3f rot) {
+		rotOff = rot;
+	}
+	
+	public void move(Vector3f vel) {
+		Vector3f rotVel = new Vector3f();
+		
+		increasePosition(vel.x * Time.deltaTime, vel.y * Time.deltaTime, vel.z * Time.deltaTime);
+	}
+	
+	public void rawMove(Vector3f vel) {
+		increasePosition(vel.x * Time.deltaTime, vel.y * Time.deltaTime, vel.z * Time.deltaTime);
+	}
+	
+	public void rot(Vector3f vel) {
+		increaseRotation(vel.x * Time.deltaTime, vel.y * Time.deltaTime, vel.z * Time.deltaTime);
 	}
 
 	public void increasePosition(float dx, float dy, float dz) {

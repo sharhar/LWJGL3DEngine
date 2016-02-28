@@ -3,7 +3,6 @@ package engine;
 import org.lwjgl.glfw.*;
 import org.lwjgl.opengl.*;
 
-import engine.graphics.MasterRenderer;
 import engine.input.Keyboard;
 import engine.input.Mouse;
 

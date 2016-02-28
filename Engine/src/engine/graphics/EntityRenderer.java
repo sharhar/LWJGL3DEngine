@@ -43,7 +43,7 @@ public class EntityRenderer {
 			List<Entity> batch = entities.get(model);
 			for(Entity entity: batch) {
 				Matrix4f transformationMatrix = Maths.createTransformationMatrix(entity.getPosition(),
-						entity.getRotX(), entity.getRotY(), entity.getRotZ(), entity.getScale());
+						entity.getRotX() + entity.getRotOff().x, entity.getRotY() + entity.getRotOff().y, entity.getRotZ() + entity.getRotOff().z, entity.getScale());
 				StaticShader.basicShader.loadTransformationMatrix(transformationMatrix);
 				GL11.glDrawElements(GL11.GL_TRIANGLES, rawModel.getVertexCount(), GL11.GL_UNSIGNED_INT, 0);
 			}

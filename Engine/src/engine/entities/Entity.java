@@ -6,11 +6,11 @@ import engine.utils.maths.Vector3f;
 
 public class Entity {
 
-	private TexturedModel model;
-	private Vector3f position;
-	private float rotX, rotY, rotZ;
-	private float scale;
-	private Vector3f rotOff = new Vector3f();
+	protected TexturedModel model;
+	protected Vector3f position;
+	protected float rotX, rotY, rotZ;
+	protected float scale;
+	protected Vector3f rotOff = new Vector3f();
 
 	public Entity(TexturedModel model, Vector3f position, float rotX, float rotY, float rotZ,
 			float scale) {
@@ -31,12 +31,6 @@ public class Entity {
 	}
 	
 	public void move(Vector3f vel) {
-		Vector3f rotVel = new Vector3f();
-		
-		increasePosition(vel.x * Time.deltaTime, vel.y * Time.deltaTime, vel.z * Time.deltaTime);
-	}
-	
-	public void rawMove(Vector3f vel) {
 		increasePosition(vel.x * Time.deltaTime, vel.y * Time.deltaTime, vel.z * Time.deltaTime);
 	}
 	

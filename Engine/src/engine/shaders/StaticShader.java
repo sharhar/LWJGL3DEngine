@@ -2,6 +2,7 @@ package engine.shaders;
 
 import engine.utils.maths.Maths;
 import engine.utils.maths.Matrix4f;
+import engine.utils.maths.Vector2f;
 import engine.utils.maths.Vector3f;
 import engine.entities.Camera;
 import engine.entities.Light;
@@ -58,6 +59,16 @@ public class StaticShader extends ShaderProgram{
 		super.getUniformLocation("skyColor");
 		super.getUniformLocation("density");
 		super.getUniformLocation("gradient");
+		super.getUniformLocation("numberOfRows");
+		super.getUniformLocation("offSet");
+	}
+	
+	public void loadNumberOfRows(int numberOfRows) {
+		super.loadFloat(uniforms.get("numberOfRows"), numberOfRows);
+	}
+	
+	public void loadTextureOffSet(Vector2f off) {
+		super.loadVec2(uniforms.get("offSet"), off);
 	}
 	
 	public void loadFogSettings(float density, float gradient) {

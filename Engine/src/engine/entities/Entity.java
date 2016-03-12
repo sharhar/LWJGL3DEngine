@@ -11,6 +11,8 @@ public class Entity {
 	protected float rotX, rotY, rotZ;
 	protected float scale;
 	protected Vector3f rotOff = new Vector3f();
+	
+	protected int textureIndex = 0;
 
 	public Entity(TexturedModel model, Vector3f position, float rotX, float rotY, float rotZ,
 			float scale) {
@@ -20,6 +22,12 @@ public class Entity {
 		this.rotY = rotY;
 		this.rotZ = rotZ;
 		this.scale = scale;
+	}
+	
+	public Entity(TexturedModel model, Vector3f position, float rotX, float rotY, float rotZ,
+			float scale, int textureIndex) {
+		this(model, position, rotX, rotY, rotZ, scale);
+		this.textureIndex = textureIndex;
 	}
 	
 	public Vector3f getRotOff() {
@@ -97,5 +105,24 @@ public class Entity {
 	public void setScale(float scale) {
 		this.scale = scale;
 	}
-
+	
+	public float getTextureXOffset() {
+		int rowNum = this.model.getTexture().getNumberOfRows();
+		if(rowNum == 1) {
+			return 0;
+		}
+		
+		int colum = textureIndex%rowNum;
+		return (float)colum/(float)rowNum;
+	}
+	
+	public float getTextureYOffset() {
+		int rowNum = this.model.getTexture().getNumberOfRows();
+		if(rowNum == 1) {
+			return 0;
+		}
+		
+		int row = textureIndex/rowNum;
+		return (float) row/ (float) rowNum;
+	}
 }

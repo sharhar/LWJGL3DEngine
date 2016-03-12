@@ -16,6 +16,7 @@ import engine.shaders.ShaderProgram;
 import engine.shaders.StaticShader;
 import engine.utils.maths.Maths;
 import engine.utils.maths.Matrix4f;
+import engine.utils.maths.Vector2f;
 
 public class EntityRenderer {
 	
@@ -33,6 +34,7 @@ public class EntityRenderer {
 			GL20.glEnableVertexAttribArray(1);
 			GL20.glEnableVertexAttribArray(2);
 			ModelTexture texture = model.getTexture();
+			StaticShader.basicShader.loadNumberOfRows(texture.getNumberOfRows());
 			if(texture.isHasTransparency()) {
 				MasterRenderer.disableCulling();
 			}
@@ -45,6 +47,7 @@ public class EntityRenderer {
 				Matrix4f transformationMatrix = Maths.createTransformationMatrix(entity.getPosition(),
 						entity.getRotX() + entity.getRotOff().x, entity.getRotY() + entity.getRotOff().y, entity.getRotZ() + entity.getRotOff().z, entity.getScale());
 				StaticShader.basicShader.loadTransformationMatrix(transformationMatrix);
+				StaticShader.basicShader.loadTextureOffSet(new Vector2f(entity.getTextureXOffset(), entity.getTextureYOffset()));
 				GL11.glDrawElements(GL11.GL_TRIANGLES, rawModel.getVertexCount(), GL11.GL_UNSIGNED_INT, 0);
 			}
 			if(texture.isHasTransparency()) {

@@ -18,8 +18,10 @@ import engine.Game;
 import engine.entities.Camera;
 import engine.entities.Entity;
 import engine.entities.Light;
-import engine.entities.Player;
 import engine.graphics.models.TexturedModel;
+import engine.guis.GUIObject;
+import engine.guis.GUIRenderer;
+import engine.guis.GUIShader;
 import engine.shaders.ShaderProgram;
 import engine.shaders.StaticShader;
 import engine.terrain.Terrain;
@@ -31,7 +33,7 @@ public class MasterRenderer {
 	
 	public static Map<TexturedModel, List<Entity>> entities = new HashMap<TexturedModel, List<Entity>>();
 	public static List<Terrain> terrains = new ArrayList<Terrain>();
-	public static List<Player> players = new ArrayList<Player>();
+	public static List<GUIObject> guis = new ArrayList<GUIObject>();
 	
 	private static Matrix4f projectionMatrix;
 	private static final float FOV = 70;
@@ -53,6 +55,11 @@ public class MasterRenderer {
 		TerrainRenderer.render(terrains);
 		ShaderProgram.stopShaders();
 		terrains.clear();
+		
+		GUIShader.inst.start();
+		GUIRenderer.render(guis);
+		ShaderProgram.stopShaders();
+		guis.clear();
 	}
 	
 	public static void enableCulling() {
@@ -93,6 +100,14 @@ public class MasterRenderer {
 		terrains.addAll(terrain);
 	}
 	
+	public static void addGUI(GUIObject gui) {
+		guis.add(gui);
+	}
+	
+	public static void addGUIs(List<GUIObject> gui) {
+		guis.addAll(gui);
+	}
+	
 	public static void addEntity(Entity entity) {
 		TexturedModel model = entity.getModel();
 		List<Entity> batch = entities.get(model);
@@ -119,6 +134,7 @@ public class MasterRenderer {
 		createProjectionMatrix();
 		EntityRenderer.init(projectionMatrix);
 		TerrainRenderer.init(projectionMatrix);
+		GUIRenderer.init();
 	}
 	
 	private static void createProjectionMatrix(){

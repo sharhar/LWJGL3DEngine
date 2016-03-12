@@ -11,10 +11,13 @@ import java.util.List;
 import javax.imageio.ImageIO;
 
 import org.lwjgl.BufferUtils;
+import org.lwjgl.glfw.GLFW;
 import org.lwjgl.opengl.GL11;
+import org.lwjgl.opengl.GL14;
 import org.lwjgl.opengl.GL15;
 import org.lwjgl.opengl.GL20;
 import org.lwjgl.opengl.GL30;
+import org.lwjgl.opengles.EXTTextureFilterAnisotropic;
 
 import engine.graphics.models.RawModel;
 
@@ -36,6 +39,13 @@ public class Loader {
 		storeDataInAttributeList(2,3,normals);
 		unbindVAO();
 		return new RawModel(vaoID,indices.length);
+	}
+	
+	public static RawModel loadToVAO(float[] positions){
+		int vaoID = createVAO();
+		storeDataInAttributeList(0,2,positions);
+		unbindVAO();
+		return new RawModel(vaoID, positions.length/2);
 	}
 	
 	public static int loadTexture(String fileName) {
@@ -64,11 +74,20 @@ public class Loader {
 		
 		int tex = GL11.glGenTextures();
 		GL11.glBindTexture(GL11.GL_TEXTURE_2D, tex);
-		GL11.glTexParameteri(GL11.GL_TEXTURE_2D, GL11.GL_TEXTURE_MIN_FILTER, GL11.GL_NEAREST);
-		GL11.glTexParameteri(GL11.GL_TEXTURE_2D, GL11.GL_TEXTURE_MAG_FILTER, GL11.GL_NEAREST);
 		IntBuffer buffer = ByteBuffer.allocateDirect(data.length << 2).order(ByteOrder.nativeOrder()).asIntBuffer();
 		buffer.put(data).flip();
 		GL11.glTexImage2D(GL11.GL_TEXTURE_2D,0,GL11.GL_RGBA,width,height,0,GL11.GL_RGBA,GL11.GL_UNSIGNED_BYTE, buffer);
+		GL30.glGenerateMipmap(GL11.GL_TEXTURE_2D);
+		GL11.glTexParameteri(GL11.GL_TEXTURE_2D, GL11.GL_TEXTURE_MIN_FILTER, GL11.GL_LINEAR_MIPMAP_LINEAR);
+		
+		if(GLFW.glfwExtensionSupported("GL_EXT_texture_filter_anisotropic") == GLFW.GLFW_TRUE) {
+			float amount = Math.min(4, GL11.glGetFloat(EXTTextureFilterAnisotropic.GL_MAX_TEXTURE_MAX_ANISOTROPY_EXT));
+			GL11.glTexParameterf(GL11.GL_TEXTURE_2D, EXTTextureFilterAnisotropic.GL_TEXTURE_MAX_ANISOTROPY_EXT, amount);
+		} else {
+			System.out.println("Antisotropic filtering not suported!");
+			GL11.glTexParameterf(GL11.GL_TEXTURE_2D, GL14.GL_TEXTURE_LOD_BIAS, -1);
+		}
+		
 		GL11.glBindTexture(GL11.GL_TEXTURE_2D, 0);
 		textures.add(tex);
 		return tex;

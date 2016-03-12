@@ -54,5 +54,6 @@ public class TerrainRenderer {
 			GL20.glDisableVertexAttribArray(2);
 			GL30.glBindVertexArray(0);
 		}
+		GL11.glBindTexture(GL11.GL_TEXTURE_2D, 0);
 	}
 }

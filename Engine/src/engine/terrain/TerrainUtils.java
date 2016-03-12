@@ -11,11 +11,13 @@ import engine.utils.Loader;
 import engine.utils.maths.Vector3f;
 
 public class TerrainUtils {
-	public  static final float SIZE = 800;
-	private static final float MAX_HEIGHT = 40;
-	private static final float MAX_PIXEL_COLOR = 256 * 256 * 256;
+	//public  static final float SIZE = 800;
 	
-	public static float[][] getHeightMap(String heightPath) {
+	//private static final float MAX_HEIGHT = 40;
+	
+	//private static final float MAX_PIXEL_COLOR = 256 * 256 * 256;
+	
+	public static float[][] getHeightMap(String heightPath, float maxHeight, float maxPixelColor) {
 		BufferedImage image = null;
 		try {
 			image = ImageIO.read(new File(heightPath));
@@ -27,14 +29,22 @@ public class TerrainUtils {
 		
 		for(int x = 0; x < image.getWidth();x++) {
 			for(int z = 0; z < image.getHeight();z++) {
-				result[x][z] = getHeight(x, z, image);
+				result[x][z] = getHeight(x, z, image, maxHeight, maxPixelColor);
 			}
 		}
 		
 		return result;
 	}
 	
-	public static RawModel generateTerrainFromMap(float[][] heightMap) {
+	public static float[][] getHeightMap(String heightPath, float maxHeight) {
+		return getHeightMap(heightPath, maxHeight, 256 * 256 * 256);
+	}
+	
+	public static float[][] getHeightMap(String heightPath) {
+		return getHeightMap(heightPath, 40, 256 * 256 * 256);
+	}
+	
+	public static RawModel generateTerrainFromMap(float[][] heightMap, float size) {
 		int VERTEX_COUNT = heightMap.length;
 		
 		int count = VERTEX_COUNT * VERTEX_COUNT;
@@ -45,8 +55,8 @@ public class TerrainUtils {
 		int vertexPointer = 0;
 		for(int i=0;i<VERTEX_COUNT;i++){
 			for(int j=0;j<VERTEX_COUNT;j++){
-				float xpos = (float)j/((float)VERTEX_COUNT - 1) * SIZE;
-				float zpos = (float)i/((float)VERTEX_COUNT - 1) * SIZE;
+				float xpos = (float)j/((float)VERTEX_COUNT - 1) * size;
+				float zpos = (float)i/((float)VERTEX_COUNT - 1) * size;
 				vertices[vertexPointer*3] = xpos;
 				vertices[vertexPointer*3+1] = heightMap[j][i];//getHeight(j, i, image);
 				vertices[vertexPointer*3+2] = zpos;
@@ -99,15 +109,15 @@ public class TerrainUtils {
 		return normal;
 	}
 	
-	public static  float getHeight(int x, int z, BufferedImage image) {
+	public static  float getHeight(int x, int z, BufferedImage image, float maxHeight, float maxPixelColor) {
 		if(x < 0 || x > image.getHeight()-1 || z < 0 || z > image.getHeight()-1){
 			return 0;
 		}
 		//System.out.println("X = " + x + "\tZ = " + z);
 		float height = image.getRGB(x, z);
-		height += MAX_PIXEL_COLOR/2f;
-		height /= MAX_PIXEL_COLOR/2f;
-		height *= MAX_HEIGHT;
+		height += maxPixelColor/2f;
+		height /= maxPixelColor/2f;
+		height *= maxHeight;
 		return height;
 	}
 }

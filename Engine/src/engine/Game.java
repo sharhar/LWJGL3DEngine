@@ -9,6 +9,7 @@ import java.util.TimerTask;
 import org.lwjgl.opengl.GL11;
 
 import engine.graphics.MasterRenderer;
+import engine.guis.GUIShader;
 import engine.input.Keyboard;
 import engine.input.Mouse;
 import engine.shaders.StaticShader;
@@ -58,6 +59,7 @@ public class Game {
 		this.window = window;
 		StaticShader.init();
 		TerrainShader.init();
+		GUIShader.init();
 	}
 	
 	public void printFPS(boolean pf) {
@@ -80,9 +82,13 @@ public class Game {
 	public void run() {
 		while(running) {
 			glClear(GL_COLOR_BUFFER_BIT);
+			window.update();
 			Mouse.tick();
 			Time.tick();
+			window.bindBuffer();
 			loop.run();
+			window.unbindBuffer();
+			window.copyBufferData();
 			glfwSwapBuffers(window.getWindow());
 			glfwPollEvents();
 			if(window.resized) {

@@ -4,9 +4,9 @@ public class TerrainTile {
 	private float x;
 	private float z;
 	
-	public TerrainTile(int gridX, int gridZ) {
-		this.x = gridX * TerrainUtils.SIZE;
-		this.z = gridZ * TerrainUtils.SIZE;
+	public TerrainTile(float gridX, float gridZ, float size) {
+		this.x = gridX * size;
+		this.z = gridZ * size;
 	}
 	
 	public float getX() {

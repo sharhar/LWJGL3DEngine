@@ -1,5 +1,6 @@
 package engine;
 
+import org.lwjgl.BufferUtils;
 import org.lwjgl.glfw.*;
 import org.lwjgl.opengl.*;
 
@@ -9,6 +10,9 @@ import engine.input.Mouse;
 import static org.lwjgl.glfw.GLFW.*;
 import static org.lwjgl.opengl.GL11.*;
 import static org.lwjgl.system.MemoryUtil.*;
+import static org.lwjgl.opengl.ARBFramebufferObject.*;
+
+import java.nio.IntBuffer;
 
 public class Window {
 
@@ -18,6 +22,14 @@ public class Window {
 	private GLFWCursorPosCallback cursorPosCallback;
 	private GLFWMouseButtonCallback mouseButtonCallback;
 	private GLFWScrollCallback scrollCallback;
+	private GLFWFramebufferSizeCallback fbCallback;
+	private int frameBufferWidth;
+	private int frameBufferHeight;
+	private boolean resetFrameBuffer = false;
+	private int colorRenderBuffer;
+	private int depthRenderBuffer;
+	private int samples;
+	private int fbo;
 	public boolean resized = false;
 
 	private long window;
@@ -45,6 +57,7 @@ public class Window {
 			cursorPosCallback.release();
 			mouseButtonCallback.release();
 			scrollCallback.release();
+			fbCallback.release();
 		} finally {
 			glfwTerminate();
 			errorCallback.release();
@@ -54,14 +67,19 @@ public class Window {
 	public Window() {
 
 	}
-
+	
 	public Window(String title, int width, int height, boolean vsync, boolean resizable) {
-		create(title, width, height, vsync, resizable);
+		create(title, width, height, vsync, resizable, 1);
 	}
 
-	public void create(String title, int width, int height, boolean vsync, boolean resizable) {
+	public Window(String title, int width, int height, boolean vsync, boolean resizable, int samples) {
+		create(title, width, height, vsync, resizable, samples);
+	}
+
+	public void create(String title, int width, int height, boolean vsync, boolean resizable, int samples) {
 		this.WIDTH = width;
 		this.HEIGHT = height;
+		this.samples = samples;
 
 		glfwSetErrorCallback(errorCallback = GLFWErrorCallback.createPrint(System.err));
 
@@ -113,9 +131,18 @@ public class Window {
 				Mouse.scrollCallback((float) xoffset, (float) yoffset);
 			}
 		});
+		
+		glfwSetFramebufferSizeCallback(window, fbCallback = new GLFWFramebufferSizeCallback() {
+			public void invoke(long window, int width, int height) {
+				if (width > 0 && height > 0 && (WIDTH != width || HEIGHT != height)) {
+					frameBufferWidth = width;
+					frameBufferHeight = height;
+					resetFrameBuffer = true;
+				}
+			}
+		});
 
 		GLFWVidMode vidmode = glfwGetVideoMode(glfwGetPrimaryMonitor());
-
 		glfwSetWindowPos(window, (vidmode.width() - width) / 2, (vidmode.height() - height) / 2);
 
 		glfwMakeContextCurrent(window);
@@ -125,8 +152,36 @@ public class Window {
 			glfwSwapInterval(0);
 		}
 		glfwShowWindow(window);
-
+		
+		IntBuffer frameBufferSize = BufferUtils.createIntBuffer(2);
+		nglfwGetFramebufferSize(window, memAddress(frameBufferSize), memAddress(frameBufferSize) + 4);
+		frameBufferWidth = frameBufferSize.get(0);
+		frameBufferHeight = frameBufferSize.get(1);
+		
 		GL.createCapabilities();
+		
+		glfwWindowHint(GLFW_SAMPLES, 4);
+		
+		colorRenderBuffer = glGenRenderbuffers();
+		depthRenderBuffer = glGenRenderbuffers();
+		fbo = glGenFramebuffers();
+		glBindFramebuffer(GL_FRAMEBUFFER, fbo);
+		
+		glBindRenderbuffer(GL_RENDERBUFFER, colorRenderBuffer);
+		glRenderbufferStorageMultisample(GL_RENDERBUFFER, samples, GL_RGBA8, frameBufferWidth, frameBufferHeight);
+		glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_RENDERBUFFER, colorRenderBuffer);
+		
+		glBindRenderbuffer(GL_RENDERBUFFER, depthRenderBuffer);
+		glRenderbufferStorageMultisample(GL_RENDERBUFFER, samples, GL_DEPTH24_STENCIL8, frameBufferWidth, frameBufferHeight);
+		glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, depthRenderBuffer);
+		
+		int fboStatus = glCheckFramebufferStatus(GL_FRAMEBUFFER);
+		if (fboStatus != GL_FRAMEBUFFER_COMPLETE) {
+			throw new AssertionError("Could not create FBO: " + fboStatus);
+		}
+		glBindFramebuffer(GL_FRAMEBUFFER, 0);
+		
+	
 
 		glClearColor(0.2f, 0.3f, 0.9f, 1.0f);
 		glEnable(GL_TEXTURE_2D);
@@ -135,5 +190,45 @@ public class Window {
 		glCullFace(GL_BACK);
 		glEnable(GL_BLEND);
 		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+	}
+	
+	public void bindBuffer() {
+		glBindFramebuffer(GL_FRAMEBUFFER, fbo);
+	}
+	
+	public void unbindBuffer() {
+		glBindFramebuffer(GL_FRAMEBUFFER, 0);
+	}
+	
+	public void copyBufferData() {
+		glBindFramebuffer(GL_READ_FRAMEBUFFER, fbo);
+		glBlitFramebuffer(0, 0, frameBufferWidth, frameBufferHeight, 0, 0, frameBufferWidth, frameBufferHeight, GL_COLOR_BUFFER_BIT, GL_NEAREST);
+	}
+	
+	public void update() {
+		if(resetFrameBuffer) {
+			glDeleteRenderbuffers(depthRenderBuffer);
+			glDeleteRenderbuffers(colorRenderBuffer);
+			glDeleteFramebuffers(fbo);
+			
+			colorRenderBuffer = glGenRenderbuffers();
+			depthRenderBuffer = glGenRenderbuffers();
+			fbo = glGenFramebuffers();
+			glBindFramebuffer(GL_FRAMEBUFFER, fbo);
+			
+			glBindRenderbuffer(GL_RENDERBUFFER, colorRenderBuffer);
+			glRenderbufferStorageMultisample(GL_RENDERBUFFER, samples, GL_RGBA8, frameBufferWidth, frameBufferHeight);
+			glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_RENDERBUFFER, colorRenderBuffer);
+			
+			glBindRenderbuffer(GL_RENDERBUFFER, depthRenderBuffer);
+			glRenderbufferStorageMultisample(GL_RENDERBUFFER, samples, GL_DEPTH24_STENCIL8, frameBufferWidth, frameBufferHeight);
+			glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, depthRenderBuffer);
+			
+			int fboStatus = glCheckFramebufferStatus(GL_FRAMEBUFFER);
+			if (fboStatus != GL_FRAMEBUFFER_COMPLETE) {
+				throw new AssertionError("Could not create FBO: " + fboStatus);
+			}
+			glBindFramebuffer(GL_FRAMEBUFFER, 0);
+		}
 	}
 }

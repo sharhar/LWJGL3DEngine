@@ -14,11 +14,27 @@ public class Terrain {
 	private RawModel model;
 	private float[][] heights;
 	private TerrainTexturePack pack;
+	private float size;
+	private float maxHeigh;
 	
 	public Terrain(TerrainTexturePack pack, String heightPath) {
+		this(pack, heightPath, 800);
+	}
+	
+	public Terrain(TerrainTexturePack pack, String heightPath, float size) {
+		this(pack, heightPath, size, 40);
+	}
+	
+	public Terrain(TerrainTexturePack pack, String heightPath, float size, float maxHeight) {
+		this(pack, heightPath, size, maxHeight, 256 * 256 * 256);
+	}
+	
+	public Terrain(TerrainTexturePack pack, String heightPath, float size, float maxHeight, float maxPixelColor) {
 		this.pack = pack;
-		this.heights = TerrainUtils.getHeightMap(heightPath);
-		this.model = TerrainUtils.generateTerrainFromMap(this.heights);
+		this.size = size;
+		this.maxHeigh = maxHeight;
+		this.heights = TerrainUtils.getHeightMap(heightPath, this.maxHeigh, maxPixelColor);
+		this.model = TerrainUtils.generateTerrainFromMap(this.heights, this.size);
 	}
 	
 	public RawModel getModel() {
@@ -29,8 +45,8 @@ public class Terrain {
 		return pack;
 	}
 
-	public void addTile(int gridX, int gridZ) {
-		tiles.add(new TerrainTile(gridX, gridZ));
+	public void addTile(float gridX, float gridZ) {
+		tiles.add(new TerrainTile(gridX, gridZ, size));
 	}
 	
 	public List<TerrainTile> getTiles() {
@@ -46,7 +62,7 @@ public class Terrain {
 		float x = pos.x - current.getX();
 		float z = pos.z - current.getZ();
 		
-		float gridSquareSize = TerrainUtils.SIZE / ((float) heights.length - 1);
+		float gridSquareSize = this.size / ((float) heights.length - 1);
 		int gridX = (int) Math.floor(x / gridSquareSize);
 		int gridZ = (int) Math.floor(z / gridSquareSize);
 		
@@ -88,11 +104,11 @@ public class Terrain {
 		float tx = tile.getX();
 		float tz = tile.getZ();
 		
-		if(px < tx || tx + TerrainUtils.SIZE < px) {
+		if(px < tx || tx + this.size < px) {
 			return false;
 		}
 		
-		if(pz < tz || tz + TerrainUtils.SIZE < pz) {
+		if(pz < tz || tz + this.size < pz) {
 			return false;
 		}
 		

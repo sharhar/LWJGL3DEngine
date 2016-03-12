@@ -70,6 +70,7 @@ public class Loader {
 		buffer.put(data).flip();
 		GL11.glTexImage2D(GL11.GL_TEXTURE_2D,0,GL11.GL_RGBA,width,height,0,GL11.GL_RGBA,GL11.GL_UNSIGNED_BYTE, buffer);
 		GL11.glBindTexture(GL11.GL_TEXTURE_2D, 0);
+		textures.add(tex);
 		return tex;
 	}
 	

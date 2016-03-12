@@ -21,4 +21,11 @@ public class Vector3f {
 	public float length() {
 		return (float) Math.sqrt(x*x + y*y + z*z);
 	}
+	
+	public void normalize() {
+		float len = length();
+		this.x /= len;
+		this.y /= len;
+		this.z /= len;
+	}
 }

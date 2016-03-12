@@ -1,75 +1,101 @@
 package engine.terrain;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import engine.graphics.models.RawModel;
-import engine.utils.Loader;
+import engine.utils.maths.Maths;
+import engine.utils.maths.Vector2f;
+import engine.utils.maths.Vector3f;
 
 public class Terrain {
-	public static final float SIZE = 800;
-	public static final int VERTEX_COUNT = 128;
+	public List<TerrainTile> tiles = new ArrayList<TerrainTile>();
 	
-	private float x;
-	private float z;
 	private RawModel model;
-	private TerrainTexturePack texture;
+	private float[][] heights;
+	private TerrainTexturePack pack;
 	
-	public Terrain(int gridX, int gridZ, TerrainTexturePack texture) {
-		this.texture = texture;
-		this.x = gridX * SIZE;
-		this.z = gridZ * SIZE;
-		this.model = generateTerrain();
+	public Terrain(TerrainTexturePack pack, String heightPath) {
+		this.pack = pack;
+		this.heights = TerrainUtils.getHeightMap(heightPath);
+		this.model = TerrainUtils.generateTerrainFromMap(this.heights);
 	}
 	
-	public float getX() {
-		return x;
-	}
-
-	public float getZ() {
-		return z;
-	}
-
 	public RawModel getModel() {
 		return model;
 	}
 
-	public TerrainTexturePack getTexture() {
-		return texture;
+	public TerrainTexturePack getPack() {
+		return pack;
 	}
 
-	private RawModel generateTerrain(){
-		int count = VERTEX_COUNT * VERTEX_COUNT;
-		float[] vertices = new float[count * 3];
-		float[] normals = new float[count * 3];
-		float[] textureCoords = new float[count*2];
-		int[] indices = new int[6*(VERTEX_COUNT-1)*(VERTEX_COUNT-1)];
-		int vertexPointer = 0;
-		for(int i=0;i<VERTEX_COUNT;i++){
-			for(int j=0;j<VERTEX_COUNT;j++){
-				vertices[vertexPointer*3] = (float)j/((float)VERTEX_COUNT - 1) * SIZE;
-				vertices[vertexPointer*3+1] = 0;
-				vertices[vertexPointer*3+2] = (float)i/((float)VERTEX_COUNT - 1) * SIZE;
-				normals[vertexPointer*3] = 0;
-				normals[vertexPointer*3+1] = 1;
-				normals[vertexPointer*3+2] = 0;
-				textureCoords[vertexPointer*2] = (float)j/((float)VERTEX_COUNT - 1);
-				textureCoords[vertexPointer*2+1] = (float)i/((float)VERTEX_COUNT - 1);
-				vertexPointer++;
+	public void addTile(int gridX, int gridZ) {
+		tiles.add(new TerrainTile(gridX, gridZ));
+	}
+	
+	public List<TerrainTile> getTiles() {
+		return tiles;
+	}
+	
+	public float getHeightAt(Vector3f pos) {
+		TerrainTile current = getCurrentTile(pos);
+		if(current == null) {
+			return 0;
+		}
+		
+		float x = pos.x - current.getX();
+		float z = pos.z - current.getZ();
+		
+		float gridSquareSize = TerrainUtils.SIZE / ((float) heights.length - 1);
+		int gridX = (int) Math.floor(x / gridSquareSize);
+		int gridZ = (int) Math.floor(z / gridSquareSize);
+		
+		if(gridX >= heights.length -1 || gridZ >= heights.length - 1 || gridX < 0 || gridZ < 0) {
+			return 0;
+		}
+		
+		float xCoord = (x % gridSquareSize)/gridSquareSize;
+		float zCoord = (z % gridSquareSize)/gridSquareSize;
+		
+		float result = 0;
+		
+		if (xCoord <= (1-zCoord)) {
+			result = Maths.barryCentric(new Vector3f(0, heights[gridX][gridZ], 0), new Vector3f(1,
+							heights[gridX + 1][gridZ], 0), new Vector3f(0,
+							heights[gridX][gridZ + 1], 1), new Vector2f(xCoord, zCoord));
+		} else {
+			result = Maths.barryCentric(new Vector3f(1, heights[gridX + 1][gridZ], 0), new Vector3f(1,
+							heights[gridX + 1][gridZ + 1], 1), new Vector3f(0,
+							heights[gridX][gridZ + 1], 1), new Vector2f(xCoord, zCoord));
+		}
+		
+		return result;
+	}
+	
+	public TerrainTile getCurrentTile(Vector3f position) {
+		for(TerrainTile tile:tiles) {
+			if(isPlayerInTile(position, tile)) {
+				return tile;
 			}
 		}
-		int pointer = 0;
-		for(int gz=0;gz<VERTEX_COUNT-1;gz++){
-			for(int gx=0;gx<VERTEX_COUNT-1;gx++){
-				int topLeft = (gz*VERTEX_COUNT)+gx;
-				int topRight = topLeft + 1;
-				int bottomLeft = ((gz+1)*VERTEX_COUNT)+gx;
-				int bottomRight = bottomLeft + 1;
-				indices[pointer++] = topLeft;
-				indices[pointer++] = bottomLeft;
-				indices[pointer++] = topRight;
-				indices[pointer++] = topRight;
-				indices[pointer++] = bottomLeft;
-				indices[pointer++] = bottomRight;
-			}
+		
+		return null;
+	}
+	
+	private boolean isPlayerInTile(Vector3f position, TerrainTile tile) {
+		float px = position.x;
+		float pz = position.z;
+		float tx = tile.getX();
+		float tz = tile.getZ();
+		
+		if(px < tx || tx + TerrainUtils.SIZE < px) {
+			return false;
 		}
-		return Loader.loadToVAO(vertices, textureCoords, normals, indices);
+		
+		if(pz < tz || tz + TerrainUtils.SIZE < pz) {
+			return false;
+		}
+		
+		return true;
 	}
 }

@@ -14,7 +14,7 @@ import engine.graphics.models.TexturedModel;
 import engine.graphics.textures.ModelTexture;
 import engine.shaders.ShaderProgram;
 import engine.shaders.StaticShader;
-import engine.utils.Maths;
+import engine.utils.maths.Maths;
 import engine.utils.maths.Matrix4f;
 
 public class EntityRenderer {

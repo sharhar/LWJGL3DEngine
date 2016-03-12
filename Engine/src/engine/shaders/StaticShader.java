@@ -1,6 +1,6 @@
 package engine.shaders;
 
-import engine.utils.Maths;
+import engine.utils.maths.Maths;
 import engine.utils.maths.Matrix4f;
 import engine.utils.maths.Vector3f;
 import engine.entities.Camera;

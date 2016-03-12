@@ -1,10 +1,5 @@
 package test;
 
-import engine.utils.Loader;
-import engine.utils.ModelData;
-import engine.utils.OBJFileLoader;
-import engine.utils.maths.Vector3f;
-
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
@@ -14,18 +9,17 @@ import org.lwjgl.glfw.GLFW;
 import engine.Game;
 import engine.Loop;
 import engine.Window;
-import engine.entities.Camera;
 import engine.entities.Entity;
 import engine.entities.Light;
 import engine.entities.Player;
+import engine.entities.ThirdPersonCamera;
 import engine.graphics.MasterRenderer;
-import engine.graphics.models.RawModel;
+import engine.graphics.models.ModelUtils;
 import engine.graphics.models.TexturedModel;
-import engine.graphics.textures.ModelTexture;
 import engine.input.Keyboard;
 import engine.terrain.Terrain;
-import engine.terrain.TerrainTexture;
 import engine.terrain.TerrainTexturePack;
+import engine.utils.maths.Vector3f;
 
 public class Main implements Loop{
 
@@ -33,18 +27,20 @@ public class Main implements Loop{
 	List<Entity> stuff = new ArrayList<Entity>();
 	Player player;
 	Light light;
-	Camera camera;
-	List<Terrain> terrains = new ArrayList<Terrain>();
+	ThirdPersonCamera camera;
+	Terrain terrain;
 	
 	public void run() {
-		camera.move();
-		
 		float move = 0;
 		Vector3f rot = new Vector3f();
 		
 		if(Keyboard.isKeyDown(GLFW.GLFW_KEY_UP)) {
-			move = -10;
+			move = -100;
 		} 
+		
+		if(Keyboard.isKeyDown(GLFW.GLFW_KEY_DOWN)) {
+			move = 100;
+		}
 		
 		if(Keyboard.isKeyDown(GLFW.GLFW_KEY_LEFT)) {
 			rot.y = 160;
@@ -55,16 +51,17 @@ public class Main implements Loop{
 		}
 		
 		if(Keyboard.isKeyDown(GLFW.GLFW_KEY_SPACE)) {
-			player.jump(4);
+			player.jump(5,1);
 		}
-		
 		
 		player.move(move);
 		player.rot(rot);
-		player.tick();
+		player.tick(terrain);
+		
+		camera.move();
 		
 		MasterRenderer.addEntity(player);
-		MasterRenderer.addTerrains(terrains);
+		MasterRenderer.addTerrain(terrain);
 		MasterRenderer.addEntitys(stuff);
 		MasterRenderer.renderScene(light, camera);
 	}
@@ -80,42 +77,26 @@ public class Main implements Loop{
 		MasterRenderer.setFogSettings(0.002f, 20);
 		
 		light = new Light(new Vector3f(3000,2000,0), 100, 2300, new Vector3f(1,1,1), null);
-		camera = new Camera();
 		
-		ModelData data = OBJFileLoader.loadOBJ("res/house.obj");
-		RawModel rawModel = Loader.loadToVAO(data);
-		ModelTexture texture = new ModelTexture(Loader.loadTexture("/house.png"));
-		TexturedModel model = new TexturedModel(rawModel, texture);
-		stuff.add(new Entity(model, new Vector3f(0, 3f, 30), 0, 0, 0, 1));
+		stuff.add(new Entity(ModelUtils.loadModel("res/house.obj", "/house.png"), new Vector3f(0, 3f, 30), 0, 0, 0, 1));
 		stuff.get(stuff.size()-1).setRotOff(new Vector3f(0, 90, 0));
 		
-		ModelData playerData = OBJFileLoader.loadOBJ("res/trump.obj");
-		RawModel playerRawModel = Loader.loadToVAO(playerData);
-		ModelTexture playerTexture = new ModelTexture(Loader.loadTexture("/trump.png"));
-		TexturedModel playerModel = new TexturedModel(playerRawModel, playerTexture);
-		player = new Player(playerModel, new Vector3f(0 , 0, -5), 0, 0, 0, 0.5f);
+		player = new Player(ModelUtils.loadModel("res/trump.obj", "/trump.png"), new Vector3f(0 , 0, -5), 0, 0, 0, 0.5f);
 		player.setRotOff(new Vector3f(0, 90, 0));
 		
-		TerrainTexturePack pack = new TerrainTexturePack(
-				new TerrainTexture(Loader.loadTexture("/grass.png")), 
-				new TerrainTexture(Loader.loadTexture("/mud.png")), 
-				new TerrainTexture(Loader.loadTexture("/grassFlowers.png")), 
-				new TerrainTexture(Loader.loadTexture("/path.png")), 
-				new TerrainTexture(Loader.loadTexture("/BlendMap.png")));
+		camera = new ThirdPersonCamera(player);
 		
-		terrains.add(new Terrain(0, -1, pack));
-		terrains.add(new Terrain(-1, -1, pack));
-		terrains.add(new Terrain(0, 0, pack));
-		terrains.add(new Terrain(-1, 0, pack));
+		String[] texPaths = {"/grass.png", "/mud.png", "/grassFlowers.png", "/path.png", "/BlendMap.png"};
+		TerrainTexturePack pack = new TerrainTexturePack(texPaths);
 		
-		ModelData treeOBJ = OBJFileLoader.loadOBJ("res/tree.obj");
-		ModelData monkeyOBJ = OBJFileLoader.loadOBJ("res/mokeyTree.obj");
+		terrain = new Terrain(pack, "res/heightmap.png");
+		terrain.addTile( 0, -1);
+		terrain.addTile(-1, -1);
+		terrain.addTile( 0,  0);
+		terrain.addTile(-1,  0);
 		
-		ModelTexture treeTexture =  new ModelTexture(Loader.loadTexture("/tree.png"));
-		ModelTexture monkeyTexture = new ModelTexture(Loader.loadTexture("/monkeyTree.png"));
-		
-		TexturedModel treeModel = new TexturedModel(Loader.loadToVAO(treeOBJ), treeTexture);
-		TexturedModel monkeyModel = new TexturedModel(Loader.loadToVAO(monkeyOBJ), monkeyTexture);
+		TexturedModel treeModel = ModelUtils.loadModel("res/tree.obj", "/tree.png");
+		TexturedModel monkeyModel = ModelUtils.loadModel("res/mokeyTree.obj", "/monkeyTree.png");
 		
 		Random random = new Random();
 		

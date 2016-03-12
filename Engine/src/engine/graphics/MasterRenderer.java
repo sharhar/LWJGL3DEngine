@@ -18,6 +18,7 @@ import engine.Game;
 import engine.entities.Camera;
 import engine.entities.Entity;
 import engine.entities.Light;
+import engine.entities.Player;
 import engine.graphics.models.TexturedModel;
 import engine.shaders.ShaderProgram;
 import engine.shaders.StaticShader;
@@ -30,6 +31,7 @@ public class MasterRenderer {
 	
 	public static Map<TexturedModel, List<Entity>> entities = new HashMap<TexturedModel, List<Entity>>();
 	public static List<Terrain> terrains = new ArrayList<Terrain>();
+	public static List<Player> players = new ArrayList<Player>();
 	
 	private static Matrix4f projectionMatrix;
 	private static final float FOV = 70;

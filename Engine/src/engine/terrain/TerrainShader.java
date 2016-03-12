@@ -3,7 +3,7 @@ package engine.terrain;
 import engine.entities.Camera;
 import engine.entities.Light;
 import engine.shaders.ShaderProgram;
-import engine.utils.Maths;
+import engine.utils.maths.Maths;
 import engine.utils.maths.Matrix4f;
 import engine.utils.maths.Vector3f;
 

@@ -9,7 +9,7 @@ import org.lwjgl.opengl.GL30;
 
 import engine.graphics.models.RawModel;
 import engine.shaders.ShaderProgram;
-import engine.utils.Maths;
+import engine.utils.maths.Maths;
 import engine.utils.maths.Matrix4f;
 import engine.utils.maths.Vector3f;
 
@@ -30,7 +30,7 @@ public class TerrainRenderer {
 			GL20.glEnableVertexAttribArray(1);
 			GL20.glEnableVertexAttribArray(2);
 			
-			TerrainTexturePack texture = terrain.getTexture();
+			TerrainTexturePack texture = terrain.getPack();
 			GL13.glActiveTexture(GL13.GL_TEXTURE0);
 			GL11.glBindTexture(GL11.GL_TEXTURE_2D, texture.getBgTex().getTexID());
 			GL13.glActiveTexture(GL13.GL_TEXTURE1);
@@ -43,9 +43,12 @@ public class TerrainRenderer {
 			GL11.glBindTexture(GL11.GL_TEXTURE_2D, texture.getBlendMap().getTexID());
 			TerrainShader.terrainShader.loadShineVariables(1, 0);
 			
-			Matrix4f transformationMatrix = Maths.createTransformationMatrix(new Vector3f(terrain.getX(), 0, terrain.getZ()), 0, 0, 0, 1);
-			TerrainShader.terrainShader.loadTransformationMatrix(transformationMatrix);
-			GL11.glDrawElements(GL11.GL_TRIANGLES, rawModel.getVertexCount(), GL11.GL_UNSIGNED_INT, 0);
+			for(TerrainTile tile:terrain.tiles) {
+				Matrix4f transformationMatrix = Maths.createTransformationMatrix(new Vector3f(tile.getX(), 0, tile.getZ()), 0, 0, 0, 1);
+				TerrainShader.terrainShader.loadTransformationMatrix(transformationMatrix);
+				GL11.glDrawElements(GL11.GL_TRIANGLES, rawModel.getVertexCount(), GL11.GL_UNSIGNED_INT, 0);
+			}
+			
 			GL20.glDisableVertexAttribArray(0);
 			GL20.glDisableVertexAttribArray(1);
 			GL20.glDisableVertexAttribArray(2);

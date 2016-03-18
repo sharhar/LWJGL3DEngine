@@ -6,14 +6,14 @@ in vec3 normal;
 
 out vec2 pass_textureCoordinates;
 out vec3 surfaceNormal;
-out vec3 toLightVector;
+out vec3 toLightVector[__lightNum__];
 out vec3 toCameraVector;
 out float visibility;
 
 uniform mat4 transformationMatrix;
 uniform mat4 projectionMatrix;
 uniform mat4 viewMatrix;
-uniform vec3 lightPosition;
+uniform vec3 lightPosition[__lightNum__];
 
 uniform float numberOfRows;
 uniform vec2 offSet;
@@ -35,7 +35,9 @@ void main(void){
  		accualNormal = vec3(0.0 ,1.0, 0.0);
  	}	
 	surfaceNormal = (transformationMatrix * vec4(accualNormal,0.0)).xyz;
-	toLightVector = lightPosition - worldPosition.xyz;
+	for(int i = 0; i < __lightNum__;i++) {
+		toLightVector[i] = lightPosition[i] - worldPosition.xyz;
+	}
 	toCameraVector = (inverse(viewMatrix) * vec4(0.0,0.0,0.0,1.0)).xyz - worldPosition.xyz;
 	
 	float distance = length(posRelToCam.xyz);

@@ -1,43 +1,42 @@
-package engine.shaders;
+package engine.entities;
 
+import engine.graphics.ShaderProgram;
 import engine.utils.maths.Maths;
 import engine.utils.maths.Matrix4f;
 import engine.utils.maths.Vector2f;
 import engine.utils.maths.Vector3f;
-import engine.entities.Camera;
-import engine.entities.Light;
 
-public class StaticShader extends ShaderProgram{
+import java.util.List;
+
+public class EntityShader extends ShaderProgram{
 	
-	public static StaticShader basicShader = null;
+	public static EntityShader inst = null;
 	public static int amountOfLights = 0;
 	private static boolean lightInited = false;
-	@SuppressWarnings("unused")
-	private static boolean lightsOn = false;
 	
 	private static final String VERTEX_FILE = "shaders/entity.vert";
 	private static final String FRAGMENT_FILE = "shaders/entity.frag";
 
 
-	public StaticShader() {
+	public EntityShader() {
 		super();
 	}
 	
 	public static void init() {
-		if(basicShader == null) {
-			basicShader = new StaticShader();
+		if(inst == null) {
+			inst = new EntityShader();
 		}
 		
 		if(!lightInited) {
 			setLights(1, false);
 		}
 		
-		basicShader.pushAllConstants();
-		basicShader.compile(VERTEX_FILE, FRAGMENT_FILE);
+		inst.pushAllConstants();
+		inst.compile(VERTEX_FILE, FRAGMENT_FILE);
 	}
 	public void pushAllConstants() {
 		for(String name:consts.keySet()) {
-			basicShader.constants.put(name, consts.get(name));
+			inst.constants.put(name, consts.get(name));
 		}
 	}
 	
@@ -51,8 +50,13 @@ public class StaticShader extends ShaderProgram{
 		super.getUniformLocation("transformationMatrix");
 		super.getUniformLocation("projectionMatrix");
 		super.getUniformLocation("viewMatrix");
-		super.getUniformLocation("lightColor");
-		super.getUniformLocation("lightPosition");
+		
+		for(int i = 0;i < amountOfLights;i++) {
+			super.getUniformLocation("lightColor[" + i + "]");
+			super.getUniformLocation("lightPosition[" + i + "]");
+			super.getUniformLocation("attenuation[" + i + "]");
+		}
+		
 		super.getUniformLocation("shineDamper");
 		super.getUniformLocation("reflectivity");
 		super.getUniformLocation("useFakeLighting");
@@ -93,27 +97,27 @@ public class StaticShader extends ShaderProgram{
 	}
 	
 	protected static void setLights(int amount, boolean lights) {
-		if(basicShader == null) {
-			basicShader = new StaticShader();
+		if(inst == null) {
+			inst = new EntityShader();
 		}
-		basicShader.addConstant("__lightNum__", "" + amount);
+		inst.addConstant("__lightNum__", "" + amount);
 		amountOfLights = amount;
 		lightInited = true;
 		Light.initLightArray(amount);
-		lightsOn = lights;
 	}
 	
-	public void loadLightAdvanced(Light light) {
-		super.loadVec3(uniforms.get("lightPosition[" + light.ID + "]"), light.pos);
-		super.loadVec3(uniforms.get("lightAttenuation[" + light.ID + "]"), light.attenuation);
-		super.loadVec3(uniforms.get("lightColor[" + light.ID + "]"), light.color);
-		super.loadFloat(uniforms.get("lightIntensity[" + light.ID + "]"), light.intensity);
-		super.loadFloat(uniforms.get("lightRange[" + light.ID + "]"), light.range);
-	}
-	
-	public void loadLight(Light light) {
-		super.loadVec3(uniforms.get("lightColor"), light.color);
-		super.loadVec3(uniforms.get("lightPosition"), light.pos);
+	public void loadLights(List<Light> lights) {
+		for(int i = 0; i < amountOfLights;i++) {
+			if(i < lights.size()) {
+				super.loadVec3(uniforms.get("lightPosition[" + i + "]"), lights.get(i).pos);
+				super.loadVec3(uniforms.get("lightColor[" + i + "]"), lights.get(i).color);
+				super.loadVec3(uniforms.get("attenuation[" + i + "]"), lights.get(i).attenuation);
+			} else {
+				super.loadVec3(uniforms.get("lightPosition[" + i + "]"), new Vector3f());
+				super.loadVec3(uniforms.get("lightColor[" + i + "]"), new Vector3f());
+				super.loadVec3(uniforms.get("attenuation[" + i + "]"), new Vector3f(1, 0, 0));
+			}
+		}
 	}
 	
 	public void loadTextureID(int ID) {

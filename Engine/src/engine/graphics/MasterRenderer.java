@@ -17,13 +17,12 @@ import org.lwjgl.opengl.GL11;
 import engine.Game;
 import engine.entities.Camera;
 import engine.entities.Entity;
+import engine.entities.EntityShader;
 import engine.entities.Light;
 import engine.graphics.models.TexturedModel;
 import engine.guis.GUIObject;
 import engine.guis.GUIRenderer;
 import engine.guis.GUIShader;
-import engine.shaders.ShaderProgram;
-import engine.shaders.StaticShader;
 import engine.terrain.Terrain;
 import engine.terrain.TerrainRenderer;
 import engine.terrain.TerrainShader;
@@ -34,32 +33,40 @@ public class MasterRenderer {
 	public static Map<TexturedModel, List<Entity>> entities = new HashMap<TexturedModel, List<Entity>>();
 	public static List<Terrain> terrains = new ArrayList<Terrain>();
 	public static List<GUIObject> guis = new ArrayList<GUIObject>();
+	public static List<Light> lights = new ArrayList<Light>();
 	
 	private static Matrix4f projectionMatrix;
 	private static final float FOV = 70;
 	private static final float NEAR_PLANE = 0.1f;
 	private static final float FAR_PLANE = 1000;
 	
-	public static void renderScene(Light light, Camera camera) {
+	public static void renderScene(Camera camera) {
 		prepare();
-		StaticShader.basicShader.start();
-		StaticShader.basicShader.loadLight(light);
-		StaticShader.basicShader.loadViewMatrix(camera);
+		
+		EntityShader.inst.start();
+		EntityShader.inst.loadLights(lights);
+		EntityShader.inst.loadViewMatrix(camera);
 		EntityRenderer.render(entities);
 		ShaderProgram.stopShaders();
-		entities.clear();
 		
-		TerrainShader.terrainShader.start();
-		TerrainShader.terrainShader.loadLight(light);
-		TerrainShader.terrainShader.loadViewMatrix(camera);
+		TerrainShader.inst.start();
+		TerrainShader.inst.loadLights(lights);
+		TerrainShader.inst.loadViewMatrix(camera);
 		TerrainRenderer.render(terrains);
 		ShaderProgram.stopShaders();
-		terrains.clear();
-		
+	}
+	
+	public static void renderGUI() {
 		GUIShader.inst.start();
 		GUIRenderer.render(guis);
 		ShaderProgram.stopShaders();
+	}
+	
+	public static void clearBuffers() {
+		entities.clear();
+		terrains.clear();
 		guis.clear();
+		lights.clear();
 	}
 	
 	public static void enableCulling() {
@@ -68,24 +75,32 @@ public class MasterRenderer {
 	}
 	
 	public static void setFogSettings(float density, float gradient) {
-		StaticShader.basicShader.start();
-		StaticShader.basicShader.loadFogSettings(density, gradient);
+		EntityShader.inst.start();
+		EntityShader.inst.loadFogSettings(density, gradient);
 		ShaderProgram.stopShaders();
 		
-		TerrainShader.terrainShader.start();
-		TerrainShader.terrainShader.loadFogSettings(density, gradient);
+		TerrainShader.inst.start();
+		TerrainShader.inst.loadFogSettings(density, gradient);
 		ShaderProgram.stopShaders();
 	}
 	
 	public static void setSkyColor(float r, float g, float b) {
 		glClearColor(r,g,b,1);
-		StaticShader.basicShader.start();
-		StaticShader.basicShader.setSkyColor(r, g, b);
+		EntityShader.inst.start();
+		EntityShader.inst.setSkyColor(r, g, b);
 		ShaderProgram.stopShaders();
 		
-		TerrainShader.terrainShader.start();
-		TerrainShader.terrainShader.setSkyColor(r, g, b);
+		TerrainShader.inst.start();
+		TerrainShader.inst.setSkyColor(r, g, b);
 		ShaderProgram.stopShaders();
+	}
+	
+	public static void addLight(Light light) {
+		lights.add(light);
+	}
+	
+	public static void addLight(List<Light> light) {
+		lights.addAll(light);
 	}
 	
 	public static void disableCulling() {

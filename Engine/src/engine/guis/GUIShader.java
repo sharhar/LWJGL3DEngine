@@ -1,6 +1,6 @@
 package engine.guis;
+import engine.graphics.ShaderProgram;
 import engine.utils.maths.Matrix4f;
-import engine.shaders.ShaderProgram;
 
 public class GUIShader extends ShaderProgram{
 	

@@ -1,19 +1,19 @@
 package engine.terrain;
 
+import java.util.List;
+
 import engine.entities.Camera;
 import engine.entities.Light;
-import engine.shaders.ShaderProgram;
+import engine.graphics.ShaderProgram;
 import engine.utils.maths.Maths;
 import engine.utils.maths.Matrix4f;
 import engine.utils.maths.Vector3f;
 
 public class TerrainShader extends ShaderProgram{
 	
-	public static TerrainShader terrainShader = null;
+	public static TerrainShader inst = null;
 	public static int amountOfLights = 0;
 	private static boolean lightInited = false;
-	@SuppressWarnings("unused")
-	private static boolean lightsOn = false;
 	
 	private static final String VERTEX_FILE = "shaders/terrain.vert";
 	private static final String FRAGMENT_FILE = "shaders/terrain.frag";
@@ -24,20 +24,20 @@ public class TerrainShader extends ShaderProgram{
 	}
 	
 	public static void init() {
-		if(terrainShader == null) {
-			terrainShader = new TerrainShader();
+		if(inst == null) {
+			inst = new TerrainShader();
 		}
 		
 		if(!lightInited) {
 			setLights(1, false);
 		}
 		
-		terrainShader.pushAllConstants();
-		terrainShader.compile(VERTEX_FILE, FRAGMENT_FILE);
+		inst.pushAllConstants();
+		inst.compile(VERTEX_FILE, FRAGMENT_FILE);
 	}
 	public void pushAllConstants() {
 		for(String name:consts.keySet()) {
-			terrainShader.constants.put(name, consts.get(name));
+			inst.constants.put(name, consts.get(name));
 		}
 	}
 	
@@ -51,8 +51,13 @@ public class TerrainShader extends ShaderProgram{
 		super.getUniformLocation("transformationMatrix");
 		super.getUniformLocation("projectionMatrix");
 		super.getUniformLocation("viewMatrix");
-		super.getUniformLocation("lightColor");
-		super.getUniformLocation("lightPosition");
+		
+		for(int i = 0; i < amountOfLights;i++) {
+			super.getUniformLocation("lightColor[" + i + "]");
+			super.getUniformLocation("lightPosition[" + i + "]");
+			super.getUniformLocation("attenuation[" + i + "]");
+		}
+		
 		super.getUniformLocation("shineDamper");
 		super.getUniformLocation("reflectivity");
 		super.getUniformLocation("skyColor");
@@ -92,27 +97,27 @@ public class TerrainShader extends ShaderProgram{
 	}
 	
 	protected static void setLights(int amount, boolean lights) {
-		if(terrainShader == null) {
-			terrainShader = new TerrainShader();
+		if(inst == null) {
+			inst = new TerrainShader();
 		}
-		terrainShader.addConstant("__lightNum__", "" + amount);
+		inst.addConstant("__lightNum__", "" + amount);
 		amountOfLights = amount;
 		lightInited = true;
 		Light.initLightArray(amount);
-		lightsOn = lights;
 	}
 	
-	public void loadLightAdvanced(Light light) {
-		super.loadVec3(uniforms.get("lightPosition[" + light.ID + "]"), light.pos);
-		super.loadVec3(uniforms.get("lightAttenuation[" + light.ID + "]"), light.attenuation);
-		super.loadVec3(uniforms.get("lightColor[" + light.ID + "]"), light.color);
-		super.loadFloat(uniforms.get("lightIntensity[" + light.ID + "]"), light.intensity);
-		super.loadFloat(uniforms.get("lightRange[" + light.ID + "]"), light.range);
-	}
-	
-	public void loadLight(Light light) {
-		super.loadVec3(uniforms.get("lightColor"), light.color);
-		super.loadVec3(uniforms.get("lightPosition"), light.pos);
+	public void loadLights(List<Light> lights) {
+		for(int i = 0; i < amountOfLights;i++) {
+			if(i < lights.size()) {
+				super.loadVec3(uniforms.get("lightPosition[" + i + "]"), lights.get(i).pos);
+				super.loadVec3(uniforms.get("lightColor[" + i + "]"), lights.get(i).color);
+				super.loadVec3(uniforms.get("attenuation[" + i + "]"), lights.get(i).attenuation);
+			} else {
+				super.loadVec3(uniforms.get("lightPosition[" + i + "]"), new Vector3f());
+				super.loadVec3(uniforms.get("lightColor[" + i + "]"), new Vector3f());
+				super.loadVec3(uniforms.get("attenuation[" + i + "]"), new Vector3f(1, 0, 0));
+			}
+		}
 	}
 	
 	public void loadTextureID(int ID) {

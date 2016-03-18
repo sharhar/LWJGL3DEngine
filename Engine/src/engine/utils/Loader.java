@@ -49,6 +49,10 @@ public class Loader {
 	}
 	
 	public static int loadTexture(String fileName) {
+		return loadTexture(fileName, 4);
+	}
+	
+	public static int loadTexture(String fileName, float anisotropicFilter) {
 		int width = 0;
 		int height = 0;
 		int[] pixels = null;
@@ -81,7 +85,7 @@ public class Loader {
 		GL11.glTexParameteri(GL11.GL_TEXTURE_2D, GL11.GL_TEXTURE_MIN_FILTER, GL11.GL_LINEAR_MIPMAP_LINEAR);
 		
 		if(GLFW.glfwExtensionSupported("GL_EXT_texture_filter_anisotropic") == GLFW.GLFW_TRUE) {
-			float amount = Math.min(4, GL11.glGetFloat(EXTTextureFilterAnisotropic.GL_MAX_TEXTURE_MAX_ANISOTROPY_EXT));
+			float amount = Math.min(anisotropicFilter, GL11.glGetFloat(EXTTextureFilterAnisotropic.GL_MAX_TEXTURE_MAX_ANISOTROPY_EXT));
 			GL11.glTexParameterf(GL11.GL_TEXTURE_2D, EXTTextureFilterAnisotropic.GL_TEXTURE_MAX_ANISOTROPY_EXT, amount);
 		} else {
 			System.out.println("Antisotropic filtering not suported!");

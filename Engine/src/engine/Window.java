@@ -76,10 +76,9 @@ public class Window {
 		create(title, width, height, vsync, resizable, samples);
 	}
 
-	public void create(String title, int width, int height, boolean vsync, boolean resizable, int samples) {
+	public void create(String title, int width, int height, boolean vsync, boolean resizable, int samp) {
 		this.WIDTH = width;
 		this.HEIGHT = height;
-		this.samples = samples;
 
 		glfwSetErrorCallback(errorCallback = GLFWErrorCallback.createPrint(System.err));
 
@@ -160,6 +159,8 @@ public class Window {
 		
 		GL.createCapabilities();
 		
+		samples = Math.min(samp, glGetInteger(GL_MAX_SAMPLES));
+		
 		glfwWindowHint(GLFW_SAMPLES, 4);
 		
 		colorRenderBuffer = glGenRenderbuffers();
@@ -189,6 +190,7 @@ public class Window {
 		glEnable(GL_CULL_FACE);
 		glCullFace(GL_BACK);
 		glEnable(GL_BLEND);
+		glEnable(GL13.GL_MULTISAMPLE);
 		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 	}
 	
@@ -203,6 +205,7 @@ public class Window {
 	public void copyBufferData() {
 		glBindFramebuffer(GL_READ_FRAMEBUFFER, fbo);
 		glBlitFramebuffer(0, 0, frameBufferWidth, frameBufferHeight, 0, 0, frameBufferWidth, frameBufferHeight, GL_COLOR_BUFFER_BIT, GL_NEAREST);
+		glBindFramebuffer(GL_FRAMEBUFFER, 0);
 	}
 	
 	public void update() {

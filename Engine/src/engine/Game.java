@@ -8,11 +8,12 @@ import java.util.TimerTask;
 
 import org.lwjgl.opengl.GL11;
 
+import engine.entities.Camera;
+import engine.entities.EntityShader;
 import engine.graphics.MasterRenderer;
 import engine.guis.GUIShader;
 import engine.input.Keyboard;
 import engine.input.Mouse;
-import engine.shaders.StaticShader;
 import engine.terrain.TerrainShader;
 import engine.utils.Loader;
 import engine.utils.Time;
@@ -31,9 +32,15 @@ public class Game {
 	private Timer fpsCounter;
 	private int fps = 0;
 	private boolean printFPS = false;
+	private Camera camera;
 	
 	public void setLoop(Loop loop) {
 		this.loop = loop;
+	}
+	
+	public static void setLights(int number) {
+		EntityShader.setLights(number);
+		TerrainShader.setLights(number);
 	}
 	
 	public Game() {
@@ -44,20 +51,25 @@ public class Game {
 		return window;
 	}
 	
-	public Game(Window window, Loop loop) {
+	public void setCamera(Camera cam) {
+		camera = cam;
+	}
+	
+	public Game(Window window) {
 		setCurrent(this);
-		init(window, loop);
+		init(window);
 		MasterRenderer.init();
 		Keyboard.init();
 		Mouse.setWindow(window);
+		MasterRenderer.setSkyColor(0.2f, 1, 1);
+		MasterRenderer.setFogSettings(0.002f, 20);
 		fpsCounter = new Timer();
 		setCurrent(this);
 	}
 	
-	public void init(Window window, Loop loop) {
-		this.loop = loop;
+	public void init(Window window) {
 		this.window = window;
-		StaticShader.init();
+		EntityShader.init();
 		TerrainShader.init();
 		GUIShader.init();
 	}
@@ -68,6 +80,12 @@ public class Game {
 	
 	public void start() {
 		running = true;
+		
+		if(camera == null) {
+			System.err.println("ENGINE>> Error: Camera is set to null!");
+			System.exit(-1);
+		}
+		
 		fpsCounter.scheduleAtFixedRate(new TimerTask() {
 			public void run() {
 				if(printFPS) {
@@ -82,15 +100,18 @@ public class Game {
 	public void run() {
 		while(running) {
 			glClear(GL_COLOR_BUFFER_BIT);
+			glfwPollEvents();
 			window.update();
 			Mouse.tick();
 			Time.tick();
+			loop.loop();
 			window.bindBuffer();
-			loop.run();
+			MasterRenderer.renderScene(camera);
+			MasterRenderer.renderGUI();
 			window.unbindBuffer();
+			MasterRenderer.clearBuffers();
 			window.copyBufferData();
 			glfwSwapBuffers(window.getWindow());
-			glfwPollEvents();
 			if(window.resized) {
 				GL11.glViewport(0, 0, window.getWidth(), window.getHeight());
 				window.resized = false;
@@ -110,10 +131,9 @@ public class Game {
 	}
 	
 	public void destroy() {
-		loop.stop();
 		fpsCounter.cancel();
-		StaticShader.basicShader.cleanUp();
-		TerrainShader.terrainShader.cleanUp();
+		EntityShader.inst.cleanUp();
+		TerrainShader.inst.cleanUp();
 		Loader.cleanUp();
 		window.close();
 	}

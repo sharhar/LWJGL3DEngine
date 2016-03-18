@@ -22,6 +22,10 @@ public class Vector3f {
 		return (float) Math.sqrt(x*x + y*y + z*z);
 	}
 	
+	public String toString() {
+		return "[" + x + ", " + y + ", " + z + "]";
+	}
+	
 	public void normalize() {
 		float len = length();
 		this.x /= len;

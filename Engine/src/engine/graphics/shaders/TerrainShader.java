@@ -1,10 +1,10 @@
-package engine.terrain;
+package engine.graphics.shaders;
 
 import java.util.List;
 
-import engine.entities.Camera;
-import engine.entities.Light;
 import engine.graphics.ShaderProgram;
+import engine.objects.Light;
+import engine.objects.cameras.Camera;
 import engine.utils.maths.Maths;
 import engine.utils.maths.Matrix4f;
 import engine.utils.maths.Vector3f;

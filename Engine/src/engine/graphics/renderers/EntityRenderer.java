@@ -1,4 +1,4 @@
-package engine.graphics;
+package engine.graphics.renderers;
 
 import java.util.List;
 import java.util.Map;
@@ -8,11 +8,13 @@ import org.lwjgl.opengl.GL13;
 import org.lwjgl.opengl.GL20;
 import org.lwjgl.opengl.GL30;
 
-import engine.entities.Entity;
-import engine.entities.EntityShader;
+import engine.graphics.MasterRenderer;
+import engine.graphics.ShaderProgram;
 import engine.graphics.models.RawModel;
 import engine.graphics.models.TexturedModel;
+import engine.graphics.shaders.EntityShader;
 import engine.graphics.textures.ModelTexture;
+import engine.objects.Entity;
 import engine.utils.maths.Maths;
 import engine.utils.maths.Matrix4f;
 import engine.utils.maths.Vector2f;

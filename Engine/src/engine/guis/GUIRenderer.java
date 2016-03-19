@@ -24,7 +24,7 @@ public class GUIRenderer {
 				 1, -1
 		};
 		
-		quadModel = Loader.loadToVAO(verts);
+		quadModel = Loader.loadToVAO(verts, 2);
 	}
 	
 	

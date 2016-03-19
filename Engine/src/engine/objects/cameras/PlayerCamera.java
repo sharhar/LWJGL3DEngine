@@ -1,4 +1,6 @@
-package engine.entities;
+package engine.objects.cameras;
+
+import engine.objects.Player;
 
 public abstract class PlayerCamera extends Camera{
 	protected Player player;

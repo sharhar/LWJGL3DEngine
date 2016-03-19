@@ -1,4 +1,4 @@
-package engine.entities;
+package engine.objects;
 
 import engine.graphics.models.TexturedModel;
 import engine.utils.Time;
@@ -7,9 +7,11 @@ import engine.utils.maths.Vector3f;
 public class Entity {
 
 	protected TexturedModel model;
-	protected Vector3f position;
-	protected float rotX, rotY, rotZ;
-	protected float scale;
+	public Vector3f position;
+	public float rotX;
+	public float rotY;
+	public float rotZ;
+	public float scale;
 	protected Vector3f rotOff = new Vector3f();
 	
 	protected int textureIndex = 0;

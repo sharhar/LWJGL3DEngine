@@ -8,13 +8,14 @@ import java.util.TimerTask;
 
 import org.lwjgl.opengl.GL11;
 
-import engine.entities.Camera;
-import engine.entities.EntityShader;
 import engine.graphics.MasterRenderer;
+import engine.graphics.shaders.EntityShader;
+import engine.graphics.shaders.TerrainShader;
+import engine.graphics.shaders.WaterShader;
 import engine.guis.GUIShader;
 import engine.input.Keyboard;
 import engine.input.Mouse;
-import engine.terrain.TerrainShader;
+import engine.objects.cameras.Camera;
 import engine.utils.Loader;
 import engine.utils.Time;
 
@@ -72,6 +73,7 @@ public class Game {
 		EntityShader.init();
 		TerrainShader.init();
 		GUIShader.init();
+		WaterShader.init();
 	}
 	
 	public void printFPS(boolean pf) {
@@ -99,13 +101,12 @@ public class Game {
 	
 	public void run() {
 		while(running) {
-			glClear(GL_COLOR_BUFFER_BIT);
 			glfwPollEvents();
 			window.update();
 			Mouse.tick();
 			Time.tick();
-			loop.loop();
 			window.bindBuffer();
+			loop.loop();
 			MasterRenderer.renderScene(camera);
 			MasterRenderer.renderGUI();
 			window.unbindBuffer();

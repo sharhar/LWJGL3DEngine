@@ -1,9 +1,11 @@
-package engine.entities;
+package engine.objects;
 
 import engine.utils.maths.Vector2f;
 import engine.utils.maths.Vector3f;
 
 public class Light {
+	
+	public static Vector3f regularPointLightattenuation = new Vector3f(1, 0.01f, 0.002f);
 	
 	protected static boolean[] lightIDs;
 	public static void initLightArray(int amount) {

@@ -1,9 +1,10 @@
-package engine.entities;
+package engine.objects.cameras;
 
 import org.lwjgl.glfw.GLFW;
 
 import engine.input.Keyboard;
 import engine.input.Mouse;
+import engine.objects.Player;
 
 public class ThirdPersonCamera extends PlayerCamera{
 	

@@ -1,7 +1,7 @@
-package engine.entities;
+package engine.objects;
 
 import engine.graphics.models.TexturedModel;
-import engine.terrain.Terrain;
+import engine.objects.terrain.Terrain;
 import engine.utils.Time;
 import engine.utils.maths.Maths;
 import engine.utils.maths.Vector3f;

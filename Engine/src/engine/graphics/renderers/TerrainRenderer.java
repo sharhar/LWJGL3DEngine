@@ -1,4 +1,4 @@
-package engine.terrain;
+package engine.graphics.renderers;
 
 import java.util.List;
 
@@ -9,6 +9,10 @@ import org.lwjgl.opengl.GL30;
 
 import engine.graphics.ShaderProgram;
 import engine.graphics.models.RawModel;
+import engine.graphics.shaders.TerrainShader;
+import engine.graphics.textures.TerrainTexturePack;
+import engine.objects.terrain.Terrain;
+import engine.objects.terrain.TerrainTile;
 import engine.utils.maths.Maths;
 import engine.utils.maths.Matrix4f;
 import engine.utils.maths.Vector3f;

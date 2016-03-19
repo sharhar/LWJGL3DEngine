@@ -1,6 +1,8 @@
-package engine.entities;
+package engine.graphics.shaders;
 
 import engine.graphics.ShaderProgram;
+import engine.objects.Light;
+import engine.objects.cameras.Camera;
 import engine.utils.maths.Maths;
 import engine.utils.maths.Matrix4f;
 import engine.utils.maths.Vector2f;
@@ -34,6 +36,7 @@ public class EntityShader extends ShaderProgram{
 		inst.pushAllConstants();
 		inst.compile(VERTEX_FILE, FRAGMENT_FILE);
 	}
+	
 	public void pushAllConstants() {
 		for(String name:consts.keySet()) {
 			inst.constants.put(name, consts.get(name));

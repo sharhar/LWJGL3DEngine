@@ -15,17 +15,21 @@ import java.util.Map;
 import org.lwjgl.opengl.GL11;
 
 import engine.Game;
-import engine.entities.Camera;
-import engine.entities.Entity;
-import engine.entities.EntityShader;
-import engine.entities.Light;
 import engine.graphics.models.TexturedModel;
+import engine.graphics.renderers.EntityRenderer;
+import engine.graphics.renderers.TerrainRenderer;
+import engine.graphics.renderers.WaterRenderer;
+import engine.graphics.shaders.EntityShader;
+import engine.graphics.shaders.TerrainShader;
+import engine.graphics.shaders.WaterShader;
 import engine.guis.GUIObject;
 import engine.guis.GUIRenderer;
 import engine.guis.GUIShader;
-import engine.terrain.Terrain;
-import engine.terrain.TerrainRenderer;
-import engine.terrain.TerrainShader;
+import engine.objects.Entity;
+import engine.objects.Light;
+import engine.objects.cameras.Camera;
+import engine.objects.terrain.Terrain;
+import engine.objects.water.WaterTile;
 import engine.utils.maths.Matrix4f;
 
 public class MasterRenderer {
@@ -34,9 +38,10 @@ public class MasterRenderer {
 	public static List<Terrain> terrains = new ArrayList<Terrain>();
 	public static List<GUIObject> guis = new ArrayList<GUIObject>();
 	public static List<Light> lights = new ArrayList<Light>();
+	public static List<WaterTile> waters = new ArrayList<WaterTile>();
 	
-	private static Matrix4f projectionMatrix;
-	private static final float FOV = 70;
+	public static Matrix4f projectionMatrix;
+	private static final float FOV = 80;
 	private static final float NEAR_PLANE = 0.1f;
 	private static final float FAR_PLANE = 1000;
 	
@@ -47,12 +52,16 @@ public class MasterRenderer {
 		EntityShader.inst.loadLights(lights);
 		EntityShader.inst.loadViewMatrix(camera);
 		EntityRenderer.render(entities);
-		ShaderProgram.stopShaders();
 		
 		TerrainShader.inst.start();
 		TerrainShader.inst.loadLights(lights);
 		TerrainShader.inst.loadViewMatrix(camera);
 		TerrainRenderer.render(terrains);
+		
+		WaterShader.inst.start();
+    	WaterShader.inst.loadViewMatrix(camera);
+		WaterRenderer.render(waters);
+		
 		ShaderProgram.stopShaders();
 	}
 	
@@ -123,6 +132,14 @@ public class MasterRenderer {
 		guis.addAll(gui);
 	}
 	
+	public static void addWater(WaterTile water) {
+		waters.add(water);
+	}
+	
+	public static void addWaters(List<WaterTile> water) {
+		waters.addAll(water);
+	}
+	
 	public static void addEntity(Entity entity) {
 		TexturedModel model = entity.getModel();
 		List<Entity> batch = entities.get(model);
@@ -149,6 +166,7 @@ public class MasterRenderer {
 		createProjectionMatrix();
 		EntityRenderer.init(projectionMatrix);
 		TerrainRenderer.init(projectionMatrix);
+		WaterRenderer.init(projectionMatrix);
 		GUIRenderer.init();
 	}
 	

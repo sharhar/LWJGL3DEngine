@@ -1,4 +1,4 @@
-package engine.terrain;
+package engine.objects.terrain;
 
 public class TerrainTile {
 	private float x;

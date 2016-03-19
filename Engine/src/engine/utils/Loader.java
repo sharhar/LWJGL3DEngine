@@ -41,11 +41,11 @@ public class Loader {
 		return new RawModel(vaoID,indices.length);
 	}
 	
-	public static RawModel loadToVAO(float[] positions){
+	public static RawModel loadToVAO(float[] positions, int vertSize){
 		int vaoID = createVAO();
-		storeDataInAttributeList(0,2,positions);
+		storeDataInAttributeList(0,vertSize,positions);
 		unbindVAO();
-		return new RawModel(vaoID, positions.length/2);
+		return new RawModel(vaoID, positions.length/vertSize);
 	}
 	
 	public static int loadTexture(String fileName) {
@@ -116,7 +116,7 @@ public class Loader {
 		return vaoID;
 	}
 	
-	private static void storeDataInAttributeList(int attributeNumber, int coordinateSize,float[] data){
+	private static void storeDataInAttributeList(int attributeNumber, int coordinateSize, float[] data){
 		int vboID = GL15.glGenBuffers();
 		vbos.add(vboID);
 		GL15.glBindBuffer(GL15.GL_ARRAY_BUFFER, vboID);

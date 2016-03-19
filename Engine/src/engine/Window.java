@@ -181,8 +181,6 @@ public class Window {
 			throw new AssertionError("Could not create FBO: " + fboStatus);
 		}
 		glBindFramebuffer(GL_FRAMEBUFFER, 0);
-		
-	
 
 		glClearColor(0.2f, 0.3f, 0.9f, 1.0f);
 		glEnable(GL_TEXTURE_2D);

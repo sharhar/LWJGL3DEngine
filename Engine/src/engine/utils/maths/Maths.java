@@ -1,6 +1,6 @@
 package engine.utils.maths;
 
-import engine.entities.Camera;
+import engine.objects.cameras.Camera;
 
 public class Maths {
 

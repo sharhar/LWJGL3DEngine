@@ -8,17 +8,19 @@ import org.lwjgl.glfw.GLFW;
 
 import engine.Game;
 import engine.Window;
-import engine.entities.Entity;
-import engine.entities.Light;
-import engine.entities.Player;
-import engine.entities.ThirdPersonCamera;
 import engine.graphics.MasterRenderer;
 import engine.graphics.models.ModelUtils;
 import engine.graphics.models.TexturedModel;
+import engine.graphics.renderers.WaterRenderer;
+import engine.graphics.textures.TerrainTexturePack;
 import engine.guis.GUIObject;
 import engine.input.Keyboard;
-import engine.terrain.Terrain;
-import engine.terrain.TerrainTexturePack;
+import engine.objects.Entity;
+import engine.objects.Light;
+import engine.objects.Player;
+import engine.objects.cameras.ThirdPersonCamera;
+import engine.objects.terrain.Terrain;
+import engine.objects.water.WaterTile;
 import engine.utils.maths.Vector3f;
 
 public class Main{
@@ -26,10 +28,10 @@ public class Main{
 	List<Entity> stuff = new ArrayList<Entity>();
 	Player player;
 	Light light;
-	Light light2;
 	ThirdPersonCamera camera;
 	Terrain terrain;
 	List<GUIObject> guis = new ArrayList<GUIObject>();
+	List<WaterTile> waters = new ArrayList<WaterTile>();
 	
 	public void playerTick() {
 		float move = 0;
@@ -61,8 +63,7 @@ public class Main{
 	}
 	
 	public void init() {
-		light = new Light(new Vector3f(50,10,-100), new Vector3f(2,2,0.7f * 2), new Vector3f(1, 0.01f, 0.002f));
-		light2 = new Light(new Vector3f(-50,10,-100), new Vector3f(0.5f * 2,2,0.5f * 2), new Vector3f(1, 0.01f, 0.002f));
+		light = new Light(new Vector3f(2000,3000,-100), new Vector3f(1, 1, 1));
 		
 		player = new Player(ModelUtils.loadModel("res/trump.obj", "/trump.png"), new Vector3f(0 , 0, -20), 0, 0, 0, 0.5f);
 		player.setRotOff(new Vector3f(0, 90, 0));
@@ -74,6 +75,8 @@ public class Main{
 		
 		terrain = new Terrain(pack, "res/terrainMap.png", 200, 15);
 		terrain.addTile(-0.5f, -1);
+		
+		waters.add(new WaterTile(0, -100, -1));
 		
 		TexturedModel treeModel = ModelUtils.loadModel("res/tree.obj", "/tree.png");
 		
@@ -90,9 +93,8 @@ public class Main{
 	}
 	
 	public Main() {
-		Game.setLights(2);
-		
-		Window window = new Window("Game", 1280, 720, true, false, 2);
+		//Game.setLights(2);
+		Window window = new Window("Game", 1280, 720, true, true, 2);
 		game = new Game(window);
 		init();
 		game.setCamera(camera);
@@ -106,7 +108,7 @@ public class Main{
 			MasterRenderer.addTerrain(terrain);
 			MasterRenderer.addEntitys(stuff);
 			MasterRenderer.addLight(light);
-			MasterRenderer.addLight(light2);
+			MasterRenderer.addWaters(waters);
 		});
 		
 		game.start();

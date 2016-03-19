@@ -1,9 +1,11 @@
-package engine.terrain;
+package engine.objects.terrain;
 
 import java.util.ArrayList;
 import java.util.List;
 
 import engine.graphics.models.RawModel;
+import engine.graphics.textures.TerrainTexturePack;
+import engine.utils.TerrainUtils;
 import engine.utils.maths.Maths;
 import engine.utils.maths.Vector2f;
 import engine.utils.maths.Vector3f;

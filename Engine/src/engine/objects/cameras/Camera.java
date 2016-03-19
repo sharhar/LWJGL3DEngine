@@ -1,4 +1,4 @@
-package engine.entities;
+package engine.objects.cameras;
 
 import engine.utils.maths.Vector3f;
 

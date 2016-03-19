@@ -1,4 +1,4 @@
-package engine.terrain;
+package engine.utils;
 
 import java.awt.image.BufferedImage;
 import java.io.File;
@@ -7,7 +7,6 @@ import java.io.IOException;
 import javax.imageio.ImageIO;
 
 import engine.graphics.models.RawModel;
-import engine.utils.Loader;
 import engine.utils.maths.Vector3f;
 
 public class TerrainUtils {

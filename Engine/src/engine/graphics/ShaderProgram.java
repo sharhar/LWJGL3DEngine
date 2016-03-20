@@ -16,6 +16,7 @@ import org.lwjgl.opengl.GL20;
 import engine.utils.maths.Matrix4f;
 import engine.utils.maths.Vector2f;
 import engine.utils.maths.Vector3f;
+import engine.utils.maths.Vector4f;
 
 public abstract class ShaderProgram {
 	
@@ -99,6 +100,10 @@ public abstract class ShaderProgram {
 		GL20.glUniform3f(location,vector.x,vector.y,vector.z);
 	}
 	
+	protected void loadVec4(int location, Vector4f vector){
+		GL20.glUniform4f(location,vector.x,vector.y,vector.z, vector.w);
+	}
+	
 	protected void loadBool(int location, boolean value){
 		float toLoad = 0;
 		if(value){
@@ -127,6 +132,7 @@ public abstract class ShaderProgram {
 			e.printStackTrace();
 			System.exit(-1);
 		}
+		
 		String temp = new String(shaderSource);
 		for(String cons:constants.keySet()) {
 			temp = temp.replace(cons, constants.get(cons));

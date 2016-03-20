@@ -1,4 +1,4 @@
-package engine.guis;
+package engine.objects;
 
 import engine.utils.maths.Vector2f;
 
@@ -7,6 +7,7 @@ public class GUIObject {
 	private int ID;
 	private Vector2f position;
 	private Vector2f scale;
+	
 	public GUIObject(int iD, Vector2f position, Vector2f scale) {
 		super();
 		ID = iD;

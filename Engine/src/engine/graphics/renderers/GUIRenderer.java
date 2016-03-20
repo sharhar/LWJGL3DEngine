@@ -1,4 +1,4 @@
-package engine.guis;
+package engine.graphics.renderers;
 
 import java.util.List;
 
@@ -8,6 +8,8 @@ import org.lwjgl.opengl.GL20;
 import org.lwjgl.opengl.GL30;
 
 import engine.graphics.models.RawModel;
+import engine.graphics.shaders.GUIShader;
+import engine.objects.GUIObject;
 import engine.utils.Loader;
 import engine.utils.maths.Maths;
 import engine.utils.maths.Matrix4f;

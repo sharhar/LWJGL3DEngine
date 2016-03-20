@@ -19,4 +19,7 @@ abstract public class Camera {
 		return rot;
 	}
 	
+	public void invertPitch() {
+		rot.x = -rot.x;
+	}
 }

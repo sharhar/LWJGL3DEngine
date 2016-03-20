@@ -1,9 +1,8 @@
-package engine.graphics.models;
+package engine.utils;
 
+import engine.graphics.models.RawModel;
+import engine.graphics.models.TexturedModel;
 import engine.graphics.textures.ModelTexture;
-import engine.utils.Loader;
-import engine.utils.ModelData;
-import engine.utils.OBJFileLoader;
 
 public class ModelUtils {
 	

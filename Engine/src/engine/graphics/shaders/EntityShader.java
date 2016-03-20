@@ -7,6 +7,7 @@ import engine.utils.maths.Maths;
 import engine.utils.maths.Matrix4f;
 import engine.utils.maths.Vector2f;
 import engine.utils.maths.Vector3f;
+import engine.utils.maths.Vector4f;
 
 import java.util.List;
 
@@ -68,6 +69,15 @@ public class EntityShader extends ShaderProgram{
 		super.getUniformLocation("gradient");
 		super.getUniformLocation("numberOfRows");
 		super.getUniformLocation("offSet");
+		super.getUniformLocation("plane");
+	}
+	
+	public void loadClipPlane(Vector4f plane) {
+		if(plane == null) {
+			super.loadVec4(uniforms.get("plane"), new Vector4f());
+			return;
+		}
+		super.loadVec4(uniforms.get("plane"), plane);
 	}
 	
 	public void loadNumberOfRows(int numberOfRows) {

@@ -12,29 +12,33 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.lwjgl.opengl.GL11;
-
 import engine.Game;
+import engine.graphics.font.DynamicFont;
+import engine.graphics.font.DynamicText;
 import engine.graphics.models.TexturedModel;
 import engine.graphics.renderers.EntityRenderer;
+import engine.graphics.renderers.FontRenderer;
+import engine.graphics.renderers.GUIRenderer;
 import engine.graphics.renderers.TerrainRenderer;
 import engine.graphics.renderers.WaterRenderer;
 import engine.graphics.shaders.EntityShader;
+import engine.graphics.shaders.FontShader;
+import engine.graphics.shaders.GUIShader;
 import engine.graphics.shaders.TerrainShader;
 import engine.graphics.shaders.WaterShader;
-import engine.guis.GUIObject;
-import engine.guis.GUIRenderer;
-import engine.guis.GUIShader;
 import engine.objects.Entity;
+import engine.objects.GUIObject;
 import engine.objects.Light;
 import engine.objects.cameras.Camera;
 import engine.objects.terrain.Terrain;
 import engine.objects.water.WaterTile;
 import engine.utils.maths.Matrix4f;
+import engine.utils.maths.Vector4f;
 
 public class MasterRenderer {
 	
 	public static Map<TexturedModel, List<Entity>> entities = new HashMap<TexturedModel, List<Entity>>();
+	public static Map<DynamicFont, List<DynamicText>> dynamicTexts = new HashMap<DynamicFont, List<DynamicText>>();
 	public static List<Terrain> terrains = new ArrayList<Terrain>();
 	public static List<GUIObject> guis = new ArrayList<GUIObject>();
 	public static List<Light> lights = new ArrayList<Light>();
@@ -45,22 +49,26 @@ public class MasterRenderer {
 	private static final float NEAR_PLANE = 0.1f;
 	private static final float FAR_PLANE = 1000;
 	
-	public static void renderScene(Camera camera) {
-		prepare();
-		
+	public static void renderScene(Camera camera, Vector4f clipPlane) {
 		EntityShader.inst.start();
 		EntityShader.inst.loadLights(lights);
 		EntityShader.inst.loadViewMatrix(camera);
+		EntityShader.inst.loadClipPlane(clipPlane);
 		EntityRenderer.render(entities);
 		
 		TerrainShader.inst.start();
 		TerrainShader.inst.loadLights(lights);
 		TerrainShader.inst.loadViewMatrix(camera);
+		TerrainShader.inst.loadClipPlane(clipPlane);
 		TerrainRenderer.render(terrains);
 		
+		ShaderProgram.stopShaders();
+	}
+	
+	public static void renderWater(Camera camera) {
 		WaterShader.inst.start();
     	WaterShader.inst.loadViewMatrix(camera);
-		WaterRenderer.render(waters);
+		WaterRenderer.render(waters, camera);
 		
 		ShaderProgram.stopShaders();
 	}
@@ -68,6 +76,10 @@ public class MasterRenderer {
 	public static void renderGUI() {
 		GUIShader.inst.start();
 		GUIRenderer.render(guis);
+		
+		FontShader.inst.start();
+		FontRenderer.renderDynamicText(dynamicTexts);
+		
 		ShaderProgram.stopShaders();
 	}
 	
@@ -76,6 +88,8 @@ public class MasterRenderer {
 		terrains.clear();
 		guis.clear();
 		lights.clear();
+		waters.clear();
+		dynamicTexts.clear();
 	}
 	
 	public static void enableCulling() {
@@ -104,11 +118,11 @@ public class MasterRenderer {
 		ShaderProgram.stopShaders();
 	}
 	
-	public static void addLight(Light light) {
+	public static void renderLight(Light light) {
 		lights.add(light);
 	}
 	
-	public static void addLight(List<Light> light) {
+	public static void renderLight(List<Light> light) {
 		lights.addAll(light);
 	}
 	
@@ -116,31 +130,43 @@ public class MasterRenderer {
 		glDisable(GL_CULL_FACE);
 	}
 	
-	public static void addTerrain(Terrain terrain) {
+	public static void renderTerrain(Terrain terrain) {
 		terrains.add(terrain);
 	}
 	
-	public static void addTerrains(List<Terrain> terrain) {
+	public static void renderTerrains(List<Terrain> terrain) {
 		terrains.addAll(terrain);
 	}
 	
-	public static void addGUI(GUIObject gui) {
+	public static void renderGUI(GUIObject gui) {
 		guis.add(gui);
 	}
 	
-	public static void addGUIs(List<GUIObject> gui) {
+	public static void renderGUIs(List<GUIObject> gui) {
 		guis.addAll(gui);
 	}
 	
-	public static void addWater(WaterTile water) {
+	public static void renderWater(WaterTile water) {
 		waters.add(water);
 	}
 	
-	public static void addWaters(List<WaterTile> water) {
+	public static void renderWaters(List<WaterTile> water) {
 		waters.addAll(water);
 	}
 	
-	public static void addEntity(Entity entity) {
+	public static void renderDynamicText(DynamicText text) {
+		DynamicFont font = text.font;
+		List<DynamicText> batch = dynamicTexts.get(font);
+		if(batch != null) {
+			batch.add(text);
+		} else {
+				List<DynamicText> newBatch = new ArrayList<DynamicText>();
+				newBatch.add(text);
+				dynamicTexts.put(font, newBatch);
+		}
+	}
+	
+	public static void renderEntity(Entity entity) {
 		TexturedModel model = entity.getModel();
 		List<Entity> batch = entities.get(model);
 		if(batch!=null) {
@@ -152,14 +178,10 @@ public class MasterRenderer {
 		}
 	}
 	
-	public static void addEntitys(List<Entity> entitys) {
+	public static void renderEntitys(List<Entity> entitys) {
 		for(Entity ent:entitys) {
-			addEntity(ent);
+			renderEntity(ent);
 		}
-	}
-	
-	public static void prepare() {
-		GL11.glClear(GL11.GL_COLOR_BUFFER_BIT|GL11.GL_DEPTH_BUFFER_BIT);
 	}
 	
 	public static void init() {
@@ -168,6 +190,7 @@ public class MasterRenderer {
 		TerrainRenderer.init(projectionMatrix);
 		WaterRenderer.init(projectionMatrix);
 		GUIRenderer.init();
+		FontRenderer.init();
 	}
 	
 	private static void createProjectionMatrix(){

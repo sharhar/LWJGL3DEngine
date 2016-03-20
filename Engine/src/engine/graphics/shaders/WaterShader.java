@@ -4,6 +4,7 @@ import engine.graphics.ShaderProgram;
 import engine.objects.cameras.Camera;
 import engine.utils.maths.Maths;
 import engine.utils.maths.Matrix4f;
+import engine.utils.maths.Vector3f;
 
 public class WaterShader extends ShaderProgram {
 	
@@ -44,6 +45,20 @@ public class WaterShader extends ShaderProgram {
     	super.getUniformLocation("projectionMatrix");
         super.getUniformLocation("viewMatrix");
         super.getUniformLocation("modelMatrix");
+        
+        super.getUniformLocation("reflectionTexture");
+        super.getUniformLocation("refractionTexture");
+        
+        super.getUniformLocation("camPos");
+    }
+    
+    public void setCameraPosition(Vector3f pos) {
+    	super.loadVec3(uniforms.get("camPos"), pos);
+    }
+    
+    public void connectTextureUnits() {
+    	super.loadInt(uniforms.get("reflectionTexture"), 0);
+    	super.loadInt(uniforms.get("refractionTexture"), 1);
     }
  
     public void loadProjectionMatrix(Matrix4f projection) {

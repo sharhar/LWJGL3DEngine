@@ -8,6 +8,7 @@ import engine.objects.cameras.Camera;
 import engine.utils.maths.Maths;
 import engine.utils.maths.Matrix4f;
 import engine.utils.maths.Vector3f;
+import engine.utils.maths.Vector4f;
 
 public class TerrainShader extends ShaderProgram{
 	
@@ -69,6 +70,16 @@ public class TerrainShader extends ShaderProgram{
 		super.getUniformLocation("gTex");
 		super.getUniformLocation("bTex");
 		super.getUniformLocation("blendMap");
+		
+		super.getUniformLocation("plane");
+	}
+	
+	public void loadClipPlane(Vector4f plane) {
+		if(plane == null) {
+			super.loadVec4(uniforms.get("plane"), new Vector4f());
+			return;
+		}
+		super.loadVec4(uniforms.get("plane"), plane);
 	}
 	
 	public void connectTextureUnits() {

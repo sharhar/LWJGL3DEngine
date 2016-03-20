@@ -1,6 +1,7 @@
 package engine.utils;
 
 import java.awt.image.BufferedImage;
+import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.nio.FloatBuffer;
@@ -41,6 +42,14 @@ public class Loader {
 		return new RawModel(vaoID,indices.length);
 	}
 	
+	public static RawModel loadToVAO(float[] positions,float[] textureCoords){
+		int vaoID = createVAO();
+		storeDataInAttributeList(0,2,positions);
+		storeDataInAttributeList(1,2,textureCoords);
+		unbindVAO();
+		return new RawModel(vaoID, positions.length/2);
+	}
+	
 	public static RawModel loadToVAO(float[] positions, int vertSize){
 		int vaoID = createVAO();
 		storeDataInAttributeList(0,vertSize,positions);
@@ -52,19 +61,28 @@ public class Loader {
 		return loadTexture(fileName, 4);
 	}
 	
+	public static int loadTexture(BufferedImage image) {
+		return loadTexture(image, 4);
+	}
+	
 	public static int loadTexture(String fileName, float anisotropicFilter) {
+		try {
+			return loadTexture(ImageIO.read(Loader.class.getResourceAsStream(fileName)), anisotropicFilter);
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+		
+		return 0;
+	}
+	
+	public static int loadTexture(BufferedImage image, float anisotropicFilter) {
 		int width = 0;
 		int height = 0;
 		int[] pixels = null;
-		try {
-			BufferedImage image = ImageIO.read(Loader.class.getResourceAsStream(fileName));
-			width = image.getWidth();
-			height = image.getHeight();
-			pixels = new int[width*height];
-			image.getRGB(0,0,width,height,pixels,0,width);
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
+		width = image.getWidth();
+		height = image.getHeight();
+		pixels = new int[width*height];
+		image.getRGB(0,0,width,height,pixels,0,width);
 		
 		int[] data = new int[width*height];
 		for(int i = 0;i < width*height;i++) {

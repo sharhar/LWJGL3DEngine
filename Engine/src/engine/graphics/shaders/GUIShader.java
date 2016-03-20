@@ -1,4 +1,4 @@
-package engine.guis;
+package engine.graphics.shaders;
 import engine.graphics.ShaderProgram;
 import engine.utils.maths.Matrix4f;
 

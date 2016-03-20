@@ -1,7 +1,6 @@
 package engine;
 
 import static org.lwjgl.glfw.GLFW.*;
-import static org.lwjgl.opengl.GL11.*;
 
 import java.util.Timer;
 import java.util.TimerTask;
@@ -10,9 +9,10 @@ import org.lwjgl.opengl.GL11;
 
 import engine.graphics.MasterRenderer;
 import engine.graphics.shaders.EntityShader;
+import engine.graphics.shaders.FontShader;
+import engine.graphics.shaders.GUIShader;
 import engine.graphics.shaders.TerrainShader;
 import engine.graphics.shaders.WaterShader;
-import engine.guis.GUIShader;
 import engine.input.Keyboard;
 import engine.input.Mouse;
 import engine.objects.cameras.Camera;
@@ -62,7 +62,7 @@ public class Game {
 		MasterRenderer.init();
 		Keyboard.init();
 		Mouse.setWindow(window);
-		MasterRenderer.setSkyColor(0.2f, 1, 1);
+		MasterRenderer.setSkyColor(0.2f, 0.8f, 1);
 		MasterRenderer.setFogSettings(0.002f, 20);
 		fpsCounter = new Timer();
 		setCurrent(this);
@@ -74,6 +74,7 @@ public class Game {
 		TerrainShader.init();
 		GUIShader.init();
 		WaterShader.init();
+		FontShader.init();
 	}
 	
 	public void printFPS(boolean pf) {
@@ -101,17 +102,26 @@ public class Game {
 	
 	public void run() {
 		while(running) {
+			
 			glfwPollEvents();
 			window.update();
 			Mouse.tick();
 			Time.tick();
-			window.bindBuffer();
+			//window.bindBuffer();
+			GL11.glClear(GL11.GL_COLOR_BUFFER_BIT|GL11.GL_DEPTH_BUFFER_BIT);
+			
 			loop.loop();
-			MasterRenderer.renderScene(camera);
-			MasterRenderer.renderGUI();
-			window.unbindBuffer();
-			MasterRenderer.clearBuffers();
-			window.copyBufferData();
+			//MasterRenderer.renderScene(camera);
+			//MasterRenderer.renderWater(camera);
+			//MasterRenderer.renderGUI();
+			
+			//window.unbindBuffer();
+			
+			//MasterRenderer.clearBuffers();
+			
+			//GL11.glClear(GL11.GL_COLOR_BUFFER_BIT|GL11.GL_DEPTH_BUFFER_BIT);
+			//window.copyBufferData();
+			
 			glfwSwapBuffers(window.getWindow());
 			if(window.resized) {
 				GL11.glViewport(0, 0, window.getWidth(), window.getHeight());

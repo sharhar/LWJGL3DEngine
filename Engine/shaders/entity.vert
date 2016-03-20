@@ -23,9 +23,13 @@ uniform float useFakeLighting;
 uniform float density;// = 0.002;
 uniform float gradient;// = 2;
 
-void main(void){
+uniform vec4 plane;
 
+void main(void){
 	vec4 worldPosition = transformationMatrix * vec4(position,1.0);
+	
+	gl_ClipDistance[0] = dot(worldPosition, plane);
+	
 	vec4 posRelToCam = viewMatrix * worldPosition;
 	gl_Position = projectionMatrix * posRelToCam;
 	pass_textureCoordinates = (textureCoordinates/numberOfRows) + offSet;

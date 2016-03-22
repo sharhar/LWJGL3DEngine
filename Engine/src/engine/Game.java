@@ -16,6 +16,7 @@ import engine.graphics.shaders.WaterShader;
 import engine.input.Keyboard;
 import engine.input.Mouse;
 import engine.objects.cameras.Camera;
+import engine.objects.water.WaterFrameBuffers;
 import engine.utils.Loader;
 import engine.utils.Time;
 
@@ -34,6 +35,7 @@ public class Game {
 	private int fps = 0;
 	private boolean printFPS = false;
 	private Camera camera;
+	private boolean water = true;
 	
 	public void setLoop(Loop loop) {
 		this.loop = loop;
@@ -56,25 +58,34 @@ public class Game {
 		camera = cam;
 	}
 	
-	public Game(Window window) {
+	public Game(Window window, boolean water) {
 		setCurrent(this);
-		init(window);
-		MasterRenderer.init();
-		Keyboard.init();
-		Mouse.setWindow(window);
-		MasterRenderer.setSkyColor(0.2f, 0.8f, 1);
-		MasterRenderer.setFogSettings(0.002f, 20);
-		fpsCounter = new Timer();
-		setCurrent(this);
-	}
-	
-	public void init(Window window) {
 		this.window = window;
+		this.water = water;
+		
 		EntityShader.init();
 		TerrainShader.init();
 		GUIShader.init();
-		WaterShader.init();
+		if(water) {
+			WaterShader.init();
+		}
 		FontShader.init();
+		MasterRenderer.init(water);
+		MasterRenderer.setSkyColor(0.2f, 0.8f, 1);
+		MasterRenderer.setFogSettings(0.002f, 20);
+		
+		if(water) {
+			double sampSqrt = Math.sqrt(window.getSamples());
+			int width = (int) (sampSqrt * window.getWidth());
+			int height = (int) (sampSqrt * window.getHeight());
+			WaterFrameBuffers.init(width, height, width, height);
+		}
+		
+		Keyboard.init();
+		Mouse.setWindow(window);
+		
+		fpsCounter = new Timer();
+		setCurrent(this);
 	}
 	
 	public void printFPS(boolean pf) {
@@ -107,20 +118,33 @@ public class Game {
 			window.update();
 			Mouse.tick();
 			Time.tick();
-			//window.bindBuffer();
-			GL11.glClear(GL11.GL_COLOR_BUFFER_BIT|GL11.GL_DEPTH_BUFFER_BIT);
 			
 			loop.loop();
-			//MasterRenderer.renderScene(camera);
-			//MasterRenderer.renderWater(camera);
-			//MasterRenderer.renderGUI();
 			
-			//window.unbindBuffer();
+			if(window.getSamples() != 1) {
+				window.bindBuffer();
+			}
 			
-			//MasterRenderer.clearBuffers();
+			GL11.glClear(GL11.GL_COLOR_BUFFER_BIT|GL11.GL_DEPTH_BUFFER_BIT);
 			
-			//GL11.glClear(GL11.GL_COLOR_BUFFER_BIT|GL11.GL_DEPTH_BUFFER_BIT);
-			//window.copyBufferData();
+			MasterRenderer.renderScene(camera, null);
+			
+			if(water) {
+				if(window.getSamples() != 1) {
+					MasterRenderer.renderWater(camera, window.getFBO(), false);
+				} else {
+					MasterRenderer.renderWater(camera, 0, false);
+				}
+			}
+			
+			MasterRenderer.renderGUI();
+			MasterRenderer.clearBuffers();
+			
+			if(window.getSamples() != 1) {
+				window.unbindBuffer();
+				GL11.glClear(GL11.GL_COLOR_BUFFER_BIT|GL11.GL_DEPTH_BUFFER_BIT);
+				window.copyBufferData();
+			}
 			
 			glfwSwapBuffers(window.getWindow());
 			if(window.resized) {

@@ -1,16 +1,14 @@
 package engine.graphics;
 
-import static org.lwjgl.opengl.GL11.GL_BACK;
-import static org.lwjgl.opengl.GL11.GL_CULL_FACE;
-import static org.lwjgl.opengl.GL11.glClearColor;
-import static org.lwjgl.opengl.GL11.glCullFace;
-import static org.lwjgl.opengl.GL11.glEnable;
-import static org.lwjgl.opengl.GL11.glDisable;
+import static org.lwjgl.opengl.GL11.*;
 
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+
+import org.lwjgl.opengl.GL11;
+import org.lwjgl.opengl.GL30;
 
 import engine.Game;
 import engine.graphics.font.DynamicFont;
@@ -31,7 +29,9 @@ import engine.objects.GUIObject;
 import engine.objects.Light;
 import engine.objects.cameras.Camera;
 import engine.objects.terrain.Terrain;
+import engine.objects.water.WaterFrameBuffers;
 import engine.objects.water.WaterTile;
+import engine.utils.MiscUtils;
 import engine.utils.maths.Matrix4f;
 import engine.utils.maths.Vector4f;
 
@@ -43,6 +43,7 @@ public class MasterRenderer {
 	public static List<GUIObject> guis = new ArrayList<GUIObject>();
 	public static List<Light> lights = new ArrayList<Light>();
 	public static List<WaterTile> waters = new ArrayList<WaterTile>();
+	private static boolean water = true;
 	
 	public static Matrix4f projectionMatrix;
 	private static final float FOV = 80;
@@ -118,6 +119,42 @@ public class MasterRenderer {
 		ShaderProgram.stopShaders();
 	}
 	
+	public static void renderWater(Camera camera, int fbo, boolean allScene) {
+		if(waters.size() == 0) {
+			return;
+		}
+		
+		if (allScene) {
+			WaterFrameBuffers.bindRefractionFrameBuffer();
+			glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+			MasterRenderer.renderScene(camera, null);
+		}
+		
+		for(int i = 0;i < waters.size();i++) {
+			WaterFrameBuffers.bindReflectionFrameBuffer();
+			float dist = 2 * (camera.getPosition().y - waters.get(i).height);
+			camera.getPosition().y -= dist;
+			camera.invertPitch();
+			glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+			MasterRenderer.renderScene(camera, new Vector4f(0, 1, 0, -waters.get(i).height));
+			camera.getPosition().y += dist;
+			camera.invertPitch();
+			
+			if(!allScene) {
+				WaterFrameBuffers.bindRefractionFrameBuffer();
+				glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+				MasterRenderer.renderScene(camera, new Vector4f(0, -1, 0, waters.get(i).height));
+			}
+			
+			GL11.glViewport(0, 0, Game.current.getWindow().getWidth(), Game.current.getWindow().getHeight());
+			
+			GL30.glBindFramebuffer(GL30.GL_FRAMEBUFFER, fbo);
+			WaterRenderer.render(waters.get(i), camera);
+		}
+		
+		ShaderProgram.stopShaders();
+	}
+	
 	public static void renderLight(Light light) {
 		lights.add(light);
 	}
@@ -146,12 +183,20 @@ public class MasterRenderer {
 		guis.addAll(gui);
 	}
 	
-	public static void renderWater(WaterTile water) {
-		waters.add(water);
+	public static void renderWater(WaterTile waterTile) {
+		if(water) {
+			waters.add(waterTile);
+		} else {
+			MiscUtils.enginePrintSeriousWarning("Water disabled! Not adding water to render buffer!");
+		}
 	}
 	
-	public static void renderWaters(List<WaterTile> water) {
-		waters.addAll(water);
+	public static void renderWaters(List<WaterTile> waterTiles) {
+		if(water) {
+			waters.addAll(waterTiles);
+		} else {
+			MiscUtils.enginePrintSeriousWarning("Water disabled! Not adding water to render buffer!");
+		}
 	}
 	
 	public static void renderDynamicText(DynamicText text) {
@@ -184,13 +229,19 @@ public class MasterRenderer {
 		}
 	}
 	
-	public static void init() {
+	public static void init(boolean w) {
+		water = w;
+		
 		createProjectionMatrix();
+		
 		EntityRenderer.init(projectionMatrix);
 		TerrainRenderer.init(projectionMatrix);
-		WaterRenderer.init(projectionMatrix);
 		GUIRenderer.init();
 		FontRenderer.init();
+		
+		if(water) {
+			WaterRenderer.init(projectionMatrix);
+		}
 	}
 	
 	private static void createProjectionMatrix(){

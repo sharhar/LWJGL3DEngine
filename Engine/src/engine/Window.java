@@ -48,6 +48,10 @@ public class Window {
 	public long getWindow() {
 		return window;
 	}
+	
+	public int getSamples() {
+		return samples;
+	}
 
 	public void close() {
 		try {
@@ -191,6 +195,10 @@ public class Window {
 
 		glEnable(GL_BLEND);
 		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+	}
+	
+	public int getFBO() {
+		return fbo;
 	}
 	
 	public void bindBuffer() {
